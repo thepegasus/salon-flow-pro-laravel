@@ -1,0 +1,40 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\StaffLeaveRequest;
+use App\Models\StaffProfile;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<StaffLeaveRequest>
+ */
+class StaffLeaveRequestFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        $staffProfile = StaffProfile::factory()->create();
+
+        return [
+            'tenant_id' => $staffProfile->tenant_id,
+            'staff_profile_id' => $staffProfile->id,
+            'start_date' => now()->addDays(3)->toDateString(),
+            'end_date' => now()->addDays(4)->toDateString(),
+            'reason' => fake()->sentence(),
+            'status' => StaffLeaveRequest::StatusPending,
+        ];
+    }
+
+    public function approved(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => StaffLeaveRequest::StatusApproved,
+            'decided_at' => now(),
+        ]);
+    }
+}
