@@ -40,6 +40,12 @@
                         <span class="sfp-nav-bar"></span>Dashboard
                     </a>
 
+                    @can('dashboard.view')
+                        <a href="{{ $tenantUrl->route('reports.index') }}" class="sfp-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                            <span class="sfp-nav-bar"></span>Reports
+                        </a>
+                    @endcan
+
                     @can('appointments.view')
                         <a href="{{ $tenantUrl->route('appointments.index') }}" class="sfp-nav-item {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Calendar

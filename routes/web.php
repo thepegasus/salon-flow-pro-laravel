@@ -12,6 +12,7 @@ use App\Http\Controllers\InventoryCategoriesController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\QuickBillController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ServiceCategoriesController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\StaffIncentivesController;
@@ -246,6 +247,10 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
 
         Route::middleware('permission:commissions.delete')->group(function () use ($nameSuffix): void {
             Route::delete('/commission-rates/{commissionRate}', [CommissionRatesController::class, 'destroy'])->name("commissionRates.destroy{$nameSuffix}");
+        });
+
+        Route::middleware('permission:dashboard.view')->group(function () use ($nameSuffix): void {
+            Route::get('/reports', [ReportsController::class, 'index'])->name("reports.index{$nameSuffix}");
         });
     });
 };

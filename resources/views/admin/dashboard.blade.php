@@ -48,8 +48,12 @@
 
         <div class="sfp-card">
             <div class="sfp-label" style="margin-bottom:12px">Low Stock</div>
-            <div class="sfp-heading" style="font-size:22px;line-height:1.2;color:#94A19D">Not tracked yet</div>
-            <div style="font-size:12.5px;color:#94A19D;margin-top:8px">Inventory module coming soon</div>
+            @if ($lowStockCount > 0)
+                <div class="sfp-heading" style="font-size:34px;line-height:1;color:#A8506B">{{ $lowStockCount }}</div>
+                <div style="font-size:12.5px;color:#94A19D;margin-top:8px">{{ Str::plural('item', $lowStockCount) }} at or below reorder level</div>
+            @else
+                <div class="sfp-heading" style="font-size:22px;line-height:1.2;color:#2F6849">All stocked</div>
+            @endif
         </div>
 
         <div class="sfp-card">
