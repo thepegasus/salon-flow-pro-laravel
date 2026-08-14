@@ -6,6 +6,7 @@ use App\Http\Controllers\BridalEngagementsController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\CommissionEarningsController;
 use App\Http\Controllers\CommissionRatesController;
+use App\Http\Controllers\DesignationsController;
 use App\Http\Controllers\ExpenseCategoriesController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\InventoryCategoriesController;
@@ -45,11 +46,14 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
         Route::middleware('permission:staff.view')->group(function () use ($nameSuffix): void {
             Route::get('/staff', [StaffsController::class, 'index'])->name("staff.index{$nameSuffix}");
             Route::get('/staff/leave-requests', [StaffLeaveRequestsController::class, 'index'])->name("staff.leaveRequests.index{$nameSuffix}");
+            Route::get('/staff/designations', [DesignationsController::class, 'index'])->name("designations.index{$nameSuffix}");
         });
 
         Route::middleware('permission:staff.create')->group(function () use ($nameSuffix): void {
             Route::get('/staff/create', [StaffsController::class, 'create'])->name("staff.create{$nameSuffix}");
             Route::post('/staff', [StaffsController::class, 'store'])->name("staff.store{$nameSuffix}");
+            Route::get('/staff/designations/create', [DesignationsController::class, 'create'])->name("designations.create{$nameSuffix}");
+            Route::post('/staff/designations', [DesignationsController::class, 'store'])->name("designations.store{$nameSuffix}");
         });
 
         Route::middleware('permission:staff.edit')->group(function () use ($nameSuffix): void {
@@ -57,10 +61,13 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
             Route::put('/staff/{staff}', [StaffsController::class, 'update'])->name("staff.update{$nameSuffix}");
             Route::post('/staff/leave-requests', [StaffLeaveRequestsController::class, 'store'])->name("staff.leaveRequests.store{$nameSuffix}");
             Route::put('/staff/leave-requests/{leaveRequest}', [StaffLeaveRequestsController::class, 'update'])->name("staff.leaveRequests.update{$nameSuffix}");
+            Route::get('/staff/designations/{designation}/edit', [DesignationsController::class, 'edit'])->name("designations.edit{$nameSuffix}");
+            Route::put('/staff/designations/{designation}', [DesignationsController::class, 'update'])->name("designations.update{$nameSuffix}");
         });
 
         Route::middleware('permission:staff.delete')->group(function () use ($nameSuffix): void {
             Route::delete('/staff/{staff}', [StaffsController::class, 'destroy'])->name("staff.destroy{$nameSuffix}");
+            Route::delete('/staff/designations/{designation}', [DesignationsController::class, 'destroy'])->name("designations.destroy{$nameSuffix}");
         });
 
         Route::middleware('permission:staff.view')->group(function () use ($nameSuffix): void {

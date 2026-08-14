@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Hash;
 
 class StaffService
 {
+    private const ProfileFields = [
+        'name', 'email', 'designation_id', 'phone', 'photo_path', 'is_active',
+        'date_of_birth', 'gender', 'address', 'emergency_contact_name', 'emergency_contact_phone',
+        'employee_code', 'date_of_joining', 'employment_type', 'reporting_manager_id',
+        'base_salary', 'bank_account_number', 'bank_ifsc',
+        'government_id_number', 'id_document_path', 'contract_document_path',
+    ];
+
     public function __construct(
         private StaffProfileRepositoryInterface $staffProfileRepository,
         private TenantContext $tenantContext,
@@ -21,24 +29,24 @@ class StaffService
         $tenant = $this->tenantContext->get();
 
         return DB::transaction(function () use ($data, $tenant): StaffProfile {
-            $user = User::create([
-                'tenant_id' => $tenant->id,
-                'name' => $data['name'],
-                'username' => $data['username'],
-                'email' => $data['email'] ?? null,
-                'password' => Hash::make($data['password']),
-            ]);
+            $profileData = array_intersect_key($data, array_flip(self::ProfileFields));
+            $profileData['tenant_id'] = $tenant->id;
 
-            $user->assignRole($data['role']);
+            if (! empty($data['create_login'])) {
+                $user = User::create([
+                    'tenant_id' => $tenant->id,
+                    'name' => $data['name'],
+                    'username' => $data['username'],
+                    'email' => $data['email'] ?? null,
+                    'password' => Hash::make($data['password']),
+                ]);
 
-            $staffProfile = $this->staffProfileRepository->create([
-                'tenant_id' => $tenant->id,
-                'user_id' => $user->id,
-                'job_title' => $data['job_title'],
-                'phone' => $data['phone'] ?? null,
-                'photo_path' => $data['photo_path'] ?? null,
-                'is_active' => $data['is_active'] ?? true,
-            ]);
+                $user->syncRoles($data['roles'] ?? []);
+
+                $profileData['user_id'] = $user->id;
+            }
+
+            $staffProfile = $this->staffProfileRepository->create($profileData);
 
             if (! empty($data['service_ids'])) {
                 $staffProfile->services()->sync($data['service_ids']);
@@ -52,19 +60,16 @@ class StaffService
     public function update(StaffProfile $staffProfile, array $data): StaffProfile
     {
         return DB::transaction(function () use ($staffProfile, $data): StaffProfile {
-            $this->staffProfileRepository->update($staffProfile, [
-                'job_title' => $data['job_title'] ?? $staffProfile->job_title,
-                'phone' => $data['phone'] ?? $staffProfile->phone,
-                'photo_path' => $data['photo_path'] ?? $staffProfile->photo_path,
-                'is_active' => $data['is_active'] ?? $staffProfile->is_active,
-            ]);
+            $profileData = array_intersect_key($data, array_flip(self::ProfileFields));
+
+            $this->staffProfileRepository->update($staffProfile, $profileData);
 
             if (array_key_exists('service_ids', $data)) {
                 $staffProfile->services()->sync($data['service_ids']);
             }
 
-            if (! empty($data['role'])) {
-                $staffProfile->user->syncRoles([$data['role']]);
+            if ($staffProfile->hasLogin() && array_key_exists('roles', $data)) {
+                $staffProfile->user->syncRoles($data['roles']);
             }
 
             return $staffProfile->refresh();

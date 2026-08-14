@@ -71,7 +71,7 @@
 
                 <div style="display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid #EDF1F0">
                     <div style="font-size:12.5px;color:#66736F">
-                        {{ $engagement->travelingStaff->pluck('user.name')->join(', ') ?: 'No traveling staff' }}
+                        {{ $engagement->travelingStaff->pluck('name')->join(', ') ?: 'No traveling staff' }}
                     </div>
                     <div style="display:flex;align-items:center;gap:12px">
                         <span class="sfp-pill {{ $pillClass }}">{{ ucfirst(str_replace('_', ' ', $engagement->status)) }}</span>

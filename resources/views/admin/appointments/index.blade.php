@@ -58,7 +58,7 @@
             <div class="sfp-table-row" style="grid-template-columns: 110px 1.4fr 1.2fr 1.6fr 130px 70px">
                 <div class="sfp-mono">{{ $appointment->start_at->format('H:i') }}&ndash;{{ $appointment->end_at->format('H:i') }}</div>
                 <div>{{ $appointment->client->name }}</div>
-                <div>{{ $appointment->staffProfile->user->name }}</div>
+                <div>{{ $appointment->staffProfile->name }}</div>
                 <div>{{ $appointment->services->pluck('name')->join(', ') }}</div>
                 <div>
                     <span class="sfp-pill {{ $statusPillClasses[$appointment->status] ?? 'sfp-pill-neutral' }}">

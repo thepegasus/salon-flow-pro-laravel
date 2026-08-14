@@ -8,28 +8,41 @@
             <h1 class="sfp-page-title">Staff &amp; roster</h1>
             <p class="sfp-page-subtitle">Approved leave is blocked from booking automatically</p>
         </div>
-        @can('staff.create')
-            <a href="{{ $tenantUrl->route('staff.create') }}" class="sfp-btn-pill-dark">+ Add staff</a>
-        @endcan
+        <div style="display: flex; gap: 12px;">
+            @can('staff.view')
+                <a href="{{ $tenantUrl->route('designations.index') }}" class="sfp-btn-outline">Manage designations</a>
+            @endcan
+            @can('staff.create')
+                <a href="{{ $tenantUrl->route('staff.create') }}" class="sfp-btn-pill-dark">+ Add staff</a>
+            @endcan
+        </div>
     </div>
 
     <div class="sfp-table-wrap">
-        <div class="sfp-table-head-row" style="grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1.5fr;">
+        <div class="sfp-table-head-row" style="grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr;">
             <div>Name</div>
-            <div>Job Title</div>
+            <div>Designation</div>
             <div>Phone</div>
+            <div>Access</div>
             <div>Status</div>
             <div></div>
         </div>
 
         @foreach ($staff as $member)
-            <div class="sfp-table-row" style="grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1.5fr;">
+            <div class="sfp-table-row" style="grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="sfp-avatar-chip">{{ strtoupper(substr($member->user->name, 0, 1)) }}</div>
-                    <span>{{ $member->user->name }}</span>
+                    <div class="sfp-avatar-chip">{{ strtoupper(substr($member->name, 0, 1)) }}</div>
+                    <span>{{ $member->name }}</span>
                 </div>
-                <div>{{ $member->job_title }}</div>
+                <div>{{ $member->designation?->name ?? '—' }}</div>
                 <div>{{ $member->phone }}</div>
+                <div>
+                    @if ($member->hasLogin())
+                        <span class="sfp-pill sfp-pill-blue">Login</span>
+                    @else
+                        <span class="sfp-pill sfp-pill-neutral">No login</span>
+                    @endif
+                </div>
                 <div>
                     @if ($member->is_active)
                         <span class="sfp-pill sfp-pill-green">Active</span>

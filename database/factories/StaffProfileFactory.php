@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Designation;
 use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Models\User;
@@ -20,14 +21,26 @@ class StaffProfileFactory extends Factory
     public function definition(): array
     {
         $tenant = Tenant::factory()->create();
+        $user = User::factory()->for($tenant)->create();
 
         return [
             'tenant_id' => $tenant->id,
-            'user_id' => User::factory()->for($tenant),
-            'job_title' => fake()->randomElement(['Senior Stylist', 'Junior Stylist', 'Front Desk', 'Manager']),
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'designation_id' => Designation::factory()->for($tenant),
             'phone' => fake()->phoneNumber(),
             'is_active' => true,
         ];
+    }
+
+    public function withoutLogin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_id' => null,
+            'name' => fake()->name(),
+            'email' => null,
+        ]);
     }
 
     public function inactive(): static

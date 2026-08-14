@@ -16,7 +16,7 @@
         @foreach ($leaveRequests as $leaveRequest)
             <div style="padding: 15px; border-radius: 14px; background: #F3F6F5; border: 1px solid #F0E7E1; margin-bottom: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-                    <div style="font-weight: 500;">{{ $leaveRequest->staffProfile->user->name }}</div>
+                    <div style="font-weight: 500;">{{ $leaveRequest->staffProfile->name }}</div>
                     <span class="sfp-pill sfp-pill-amber">Pending</span>
                 </div>
                 <div class="sfp-mono" style="font-size: 12.5px; color: #66736F; margin-top: 6px;">

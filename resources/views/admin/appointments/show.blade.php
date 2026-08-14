@@ -15,7 +15,7 @@
 
     <div class="sfp-page-header">
         <div>
-            <h1 class="sfp-page-title">{{ $appointment->client->name }} with {{ $appointment->staffProfile->user->name }}</h1>
+            <h1 class="sfp-page-title">{{ $appointment->client->name }} with {{ $appointment->staffProfile->name }}</h1>
             <div class="sfp-page-subtitle sfp-mono">{{ $appointment->start_at->format('d M Y, H:i') }} &ndash; {{ $appointment->end_at->format('H:i') }}</div>
         </div>
         <span class="sfp-pill {{ $statusPillClasses[$appointment->status] ?? 'sfp-pill-neutral' }}">

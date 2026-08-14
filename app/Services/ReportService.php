@@ -19,7 +19,7 @@ class ReportService
         $paidBills = Bill::query()
             ->where('status', '!=', Bill::StatusVoid)
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
-            ->with(['lineItems.service', 'payments', 'appointment.staffProfile.user'])
+            ->with(['lineItems.service', 'payments', 'appointment.staffProfile'])
             ->get();
 
         return [
@@ -116,7 +116,7 @@ class ReportService
         $totals = [];
 
         foreach ($bills as $bill) {
-            $staffName = $bill->appointment?->staffProfile?->user?->name;
+            $staffName = $bill->appointment?->staffProfile?->name;
 
             if (! $staffName) {
                 continue;

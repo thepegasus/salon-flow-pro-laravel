@@ -32,7 +32,7 @@
                     <select name="staff_profile_id" class="sfp-select">
                         <option value="">All staff</option>
                         @foreach ($staffList as $member)
-                            <option value="{{ $member->id }}">{{ $member->user?->name ?? 'Unknown' }}</option>
+                            <option value="{{ $member->id }}">{{ $member->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -54,7 +54,7 @@
 
         @forelse ($earnings as $row)
             <div class="sfp-table-row" style="grid-template-columns:1fr 140px 140px 140px 90px">
-                <span>{{ $row['staff']->user?->name ?? 'Unknown' }}</span>
+                <span>{{ $row['staff']->name }}</span>
                 <span class="sfp-mono">&#8377;{{ number_format((float) $row['commissionEarned'], 2) }}</span>
                 <span class="sfp-mono">&#8377;{{ number_format((float) $row['incentivesEarned'], 2) }}</span>
                 <span class="sfp-mono" style="font-weight:600">&#8377;{{ number_format((float) $row['totalEarned'], 2) }}</span>

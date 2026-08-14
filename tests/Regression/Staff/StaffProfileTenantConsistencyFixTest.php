@@ -36,10 +36,10 @@ class StaffProfileTenantConsistencyFixTest extends TestCase
 
         $staffProfile = app(StaffService::class)->create([
             'name' => 'Anjali Menon',
+            'create_login' => true,
             'username' => 'anjali',
             'password' => 'password123',
-            'role' => 'Stylist',
-            'job_title' => 'Stylist',
+            'roles' => ['Stylist'],
         ]);
 
         $this->assertSame($tenant->id, $staffProfile->tenant_id);

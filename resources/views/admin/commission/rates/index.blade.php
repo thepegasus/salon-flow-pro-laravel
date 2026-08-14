@@ -29,7 +29,7 @@
 
         @forelse ($rates as $rate)
             <div class="sfp-table-row" style="grid-template-columns:1fr 1fr 90px 120px 140px">
-                <span>{{ $rate->staffProfile?->user?->name ?? 'All staff' }}</span>
+                <span>{{ $rate->staffProfile?->name ?? 'All staff' }}</span>
                 <span>{{ $rate->serviceCategory?->name ?? 'All categories' }}</span>
                 <span class="sfp-mono">{{ number_format($rate->rate_percent, 2) }}%</span>
                 <span class="sfp-mono">{{ $rate->effective_from->format('d M Y') }}</span>

@@ -20,7 +20,7 @@ class StaffIncentiveRepository implements StaffIncentiveRepositoryInterface
     /** @return Collection<int, StaffIncentive> */
     public function getAll(): Collection
     {
-        return $this->model->with(['staffProfile.user'])
+        return $this->model->with(['staffProfile'])
             ->orderByDesc('awarded_date')
             ->get();
     }

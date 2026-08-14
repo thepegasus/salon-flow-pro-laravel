@@ -20,7 +20,7 @@ class AppointmentRepository implements AppointmentRepositoryInterface
     public function getForDate(Carbon $date): Collection
     {
         return $this->model->onDate($date->toDateString())
-            ->with(['client', 'staffProfile.user', 'services'])
+            ->with(['client', 'staffProfile', 'services'])
             ->orderBy('start_at')
             ->get();
     }

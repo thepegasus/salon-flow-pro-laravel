@@ -18,7 +18,7 @@ class CommissionRateRepository implements CommissionRateRepositoryInterface
     /** @return Collection<int, CommissionRate> */
     public function getAll(): Collection
     {
-        return $this->model->with(['staffProfile.user', 'serviceCategory'])
+        return $this->model->with(['staffProfile', 'serviceCategory'])
             ->orderByDesc('effective_from')
             ->get();
     }

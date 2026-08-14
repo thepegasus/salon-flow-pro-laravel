@@ -38,7 +38,7 @@
         </div>
 
         <div style="font-size:12.5px;color:#66736F;margin-bottom:16px">
-            Traveling staff: {{ $engagement->travelingStaff->pluck('user.name')->join(', ') ?: 'None assigned' }}
+            Traveling staff: {{ $engagement->travelingStaff->pluck('name')->join(', ') ?: 'None assigned' }}
         </div>
 
         @if ($engagement->notes)
@@ -55,7 +55,7 @@
                 <div style="font-size:13.5px;line-height:1.6">
                     @if ($trial)
                         <div>{{ $trial->start_at->format('d M Y, H:i') }}</div>
-                        <div style="color:#66736F">Staff: {{ $trial->staffProfile->user->name }}</div>
+                        <div style="color:#66736F">Staff: {{ $trial->staffProfile->name }}</div>
                         <div style="color:#66736F">
                             {{ $trial->is_on_location ? 'On-location'.($trial->venue_address ? ' — '.$trial->venue_address : '') : 'In-studio' }}
                         </div>
@@ -71,7 +71,7 @@
                 <div style="font-size:13.5px;line-height:1.6">
                     @if ($eventDay)
                         <div>{{ $eventDay->start_at->format('d M Y, H:i') }}</div>
-                        <div style="color:#66736F">Staff: {{ $eventDay->staffProfile->user->name }}</div>
+                        <div style="color:#66736F">Staff: {{ $eventDay->staffProfile->name }}</div>
                         <div style="color:#66736F">
                             {{ $eventDay->is_on_location ? 'On-location'.($eventDay->venue_address ? ' — '.$eventDay->venue_address : '') : 'In-studio' }}
                         </div>

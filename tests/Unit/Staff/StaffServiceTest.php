@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Staff;
 
+use App\Models\Designation;
 use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Repositories\Contracts\StaffProfileRepositoryInterface;
@@ -23,7 +24,39 @@ class StaffServiceTest extends TestCase
         $this->seed(PermissionSeeder::class);
     }
 
-    public function test_create_persists_user_staff_profile_and_role(): void
+    public function test_create_persists_user_staff_profile_and_roles_when_login_requested(): void
+    {
+        $tenant = Tenant::factory()->create();
+
+        $tenantContext = app(TenantContext::class);
+        $tenantContext->set($tenant);
+
+        $designation = Designation::factory()->create(['tenant_id' => $tenant->id, 'name' => 'Senior Stylist']);
+
+        $repository = Mockery::mock(StaffProfileRepositoryInterface::class);
+        $repository->shouldReceive('create')
+            ->once()
+            ->andReturnUsing(fn (array $data) => StaffProfile::create($data));
+
+        $service = new StaffService($repository, $tenantContext);
+
+        $staffProfile = $service->create([
+            'name' => 'Priya Nair',
+            'designation_id' => $designation->id,
+            'create_login' => true,
+            'username' => 'priya',
+            'email' => 'priya@example.com',
+            'password' => 'password123',
+            'roles' => ['Stylist'],
+        ]);
+
+        $this->assertSame('Priya Nair', $staffProfile->name);
+        $this->assertSame($designation->id, $staffProfile->designation_id);
+        $this->assertSame($tenant->id, $staffProfile->user->tenant_id);
+        $this->assertTrue($staffProfile->user->hasRole('Stylist'));
+    }
+
+    public function test_create_persists_staff_profile_without_a_login(): void
     {
         $tenant = Tenant::factory()->create();
 
@@ -38,17 +71,12 @@ class StaffServiceTest extends TestCase
         $service = new StaffService($repository, $tenantContext);
 
         $staffProfile = $service->create([
-            'name' => 'Priya Nair',
-            'username' => 'priya',
-            'email' => 'priya@example.com',
-            'password' => 'password123',
-            'role' => 'Stylist',
-            'job_title' => 'Senior Stylist',
+            'name' => 'Ravi Kumar',
         ]);
 
-        $this->assertSame('Senior Stylist', $staffProfile->job_title);
-        $this->assertSame($tenant->id, $staffProfile->user->tenant_id);
-        $this->assertTrue($staffProfile->user->hasRole('Stylist'));
+        $this->assertSame('Ravi Kumar', $staffProfile->name);
+        $this->assertNull($staffProfile->user_id);
+        $this->assertFalse($staffProfile->hasLogin());
     }
 
     public function test_update_syncs_services_when_provided(): void
@@ -71,8 +99,8 @@ class StaffServiceTest extends TestCase
 
         $service = new StaffService($repository, $tenantContext);
 
-        $service->update($staffProfile, ['job_title' => 'Manager', 'service_ids' => []]);
+        $service->update($staffProfile, ['name' => 'Updated Name', 'service_ids' => []]);
 
-        $this->assertSame('Manager', $staffProfile->fresh()->job_title);
+        $this->assertSame('Updated Name', $staffProfile->fresh()->name);
     }
 }

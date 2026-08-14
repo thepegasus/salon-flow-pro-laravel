@@ -5,17 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Staff\StoreStaffRequest;
 use App\Http\Requests\Staff\UpdateStaffRequest;
 use App\Models\StaffProfile;
+use App\Repositories\Contracts\DesignationRepositoryInterface;
 use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use App\Services\StaffService;
 use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class StaffsController extends Controller
 {
     public function __construct(
         private StaffProfileRepositoryInterface $staffProfileRepository,
+        private DesignationRepositoryInterface $designationRepository,
         private StaffService $staffService,
         private TenantUrl $tenantUrl,
     ) {}
@@ -33,7 +36,10 @@ class StaffsController extends Controller
     {
         abort_unless($request->user()->can('staff.create'), 403);
 
-        return view('admin.staff.create');
+        return view('admin.staff.create', [
+            'designations' => $this->designationRepository->getActive(),
+            'roles' => Role::all(),
+        ]);
     }
 
     public function store(StoreStaffRequest $request): RedirectResponse
@@ -56,7 +62,11 @@ class StaffsController extends Controller
     {
         abort_unless($request->user()->can('staff.edit'), 403);
 
-        return view('admin.staff.edit', ['staff' => $staff]);
+        return view('admin.staff.edit', [
+            'staff' => $staff,
+            'designations' => $this->designationRepository->getActive(),
+            'roles' => Role::all(),
+        ]);
     }
 
     public function update(UpdateStaffRequest $request, string $subdomain, StaffProfile $staff): RedirectResponse

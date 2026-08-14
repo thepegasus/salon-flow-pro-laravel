@@ -25,12 +25,45 @@ class UpdateStaffRequest extends FormRequest
     public function rules(): array
     {
         $tenantId = app(TenantContext::class)->get()->id;
+        $staff = $this->route('staff');
 
         return [
-            'job_title' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'email' => [
+                'nullable', 'email', 'max:255',
+                Rule::unique('staff_profiles', 'email')->where('tenant_id', $tenantId)->ignore($staff),
+            ],
             'phone' => ['nullable', 'string', 'max:30'],
+            'designation_id' => [
+                'nullable', 'integer',
+                Rule::exists('designations', 'id')->where('tenant_id', $tenantId),
+            ],
             'is_active' => ['sometimes', 'boolean'],
-            'role' => ['sometimes', 'string', Rule::exists('roles', 'name')],
+
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => ['string', Rule::exists('roles', 'name')],
+
+            'date_of_birth' => ['nullable', 'date'],
+            'gender' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:2000'],
+            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
+            'emergency_contact_phone' => ['nullable', 'string', 'max:30'],
+
+            'employee_code' => ['nullable', 'string', 'max:100'],
+            'date_of_joining' => ['nullable', 'date'],
+            'employment_type' => ['nullable', 'string', 'max:100'],
+            'reporting_manager_id' => [
+                'nullable', 'integer',
+                Rule::exists('staff_profiles', 'id')->where('tenant_id', $tenantId),
+                Rule::notIn([$staff?->id]),
+            ],
+
+            'base_salary' => ['nullable', 'numeric', 'min:0'],
+            'bank_account_number' => ['nullable', 'string', 'max:100'],
+            'bank_ifsc' => ['nullable', 'string', 'max:20'],
+
+            'government_id_number' => ['nullable', 'string', 'max:100'],
+
             'service_ids' => ['sometimes', 'array'],
             'service_ids.*' => [
                 'integer',

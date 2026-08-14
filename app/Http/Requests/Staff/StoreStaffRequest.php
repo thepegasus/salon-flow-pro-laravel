@@ -28,19 +28,46 @@ class StoreStaffRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'username' => [
-                'required', 'string', 'max:255',
-                Rule::unique('users', 'username')->where('tenant_id', $tenantId),
-            ],
             'email' => [
                 'nullable', 'email', 'max:255',
-                Rule::unique('users', 'email')->where('tenant_id', $tenantId),
+                Rule::unique('staff_profiles', 'email')->where('tenant_id', $tenantId),
             ],
-            'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', 'string', Rule::exists('roles', 'name')],
-            'job_title' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'designation_id' => [
+                'nullable', 'integer',
+                Rule::exists('designations', 'id')->where('tenant_id', $tenantId),
+            ],
             'is_active' => ['sometimes', 'boolean'],
+
+            'create_login' => ['sometimes', 'boolean'],
+            'username' => [
+                'required_if:create_login,1', 'string', 'max:255',
+                Rule::unique('users', 'username')->where('tenant_id', $tenantId),
+            ],
+            'password' => ['required_if:create_login,1', 'string', 'min:8'],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => ['string', Rule::exists('roles', 'name')],
+
+            'date_of_birth' => ['nullable', 'date'],
+            'gender' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:2000'],
+            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
+            'emergency_contact_phone' => ['nullable', 'string', 'max:30'],
+
+            'employee_code' => ['nullable', 'string', 'max:100'],
+            'date_of_joining' => ['nullable', 'date'],
+            'employment_type' => ['nullable', 'string', 'max:100'],
+            'reporting_manager_id' => [
+                'nullable', 'integer',
+                Rule::exists('staff_profiles', 'id')->where('tenant_id', $tenantId),
+            ],
+
+            'base_salary' => ['nullable', 'numeric', 'min:0'],
+            'bank_account_number' => ['nullable', 'string', 'max:100'],
+            'bank_ifsc' => ['nullable', 'string', 'max:20'],
+
+            'government_id_number' => ['nullable', 'string', 'max:100'],
+
             'service_ids' => ['sometimes', 'array'],
             'service_ids.*' => [
                 'integer',

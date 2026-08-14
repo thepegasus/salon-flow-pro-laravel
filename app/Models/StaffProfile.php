@@ -14,7 +14,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['tenant_id', 'user_id', 'job_title', 'photo_path', 'phone', 'is_active'])]
+#[Fillable([
+    'tenant_id', 'user_id', 'name', 'email', 'designation_id', 'photo_path', 'phone', 'is_active',
+    'date_of_birth', 'gender', 'address', 'emergency_contact_name', 'emergency_contact_phone',
+    'employee_code', 'date_of_joining', 'employment_type', 'reporting_manager_id',
+    'base_salary', 'bank_account_number', 'bank_ifsc',
+    'government_id_number', 'id_document_path', 'contract_document_path',
+])]
 #[ScopedBy([TenantScope::class])]
 class StaffProfile extends Model
 {
@@ -26,6 +32,9 @@ class StaffProfile extends Model
     {
         return [
             'is_active' => 'boolean',
+            'date_of_birth' => 'date',
+            'date_of_joining' => 'date',
+            'base_salary' => 'decimal:2',
         ];
     }
 
@@ -39,6 +48,24 @@ class StaffProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** @return BelongsTo<Designation, $this> */
+    public function designation(): BelongsTo
+    {
+        return $this->belongsTo(Designation::class);
+    }
+
+    /** @return BelongsTo<StaffProfile, $this> */
+    public function reportingManager(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'reporting_manager_id');
+    }
+
+    /** @return HasMany<StaffProfile, $this> */
+    public function directReports(): HasMany
+    {
+        return $this->hasMany(self::class, 'reporting_manager_id');
     }
 
     /** @return BelongsToMany<Service, $this> */
@@ -87,5 +114,10 @@ class StaffProfile extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function hasLogin(): bool
+    {
+        return $this->user_id !== null;
     }
 }

@@ -69,7 +69,7 @@ class BridalEngagementsController extends Controller
     {
         abort_unless($request->user()->can('appointments.view'), 403);
 
-        $bridalEngagement->load(['client', 'appointments.staffProfile.user', 'travelingStaff.user']);
+        $bridalEngagement->load(['client', 'appointments.staffProfile', 'travelingStaff']);
 
         return view('admin.bridal-engagements.show', ['engagement' => $bridalEngagement]);
     }
