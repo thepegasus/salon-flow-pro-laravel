@@ -36,7 +36,7 @@ class StaffLeaveRequestsController extends Controller
         return redirect()->route('staff.leaveRequests.index')->with('status', 'Leave request submitted.');
     }
 
-    public function update(DecideLeaveRequestRequest $request, StaffLeaveRequest $leaveRequest): RedirectResponse
+    public function update(DecideLeaveRequestRequest $request, string $subdomain, StaffLeaveRequest $leaveRequest): RedirectResponse
     {
         abort_unless($request->user()->can('staff.edit'), 403);
 

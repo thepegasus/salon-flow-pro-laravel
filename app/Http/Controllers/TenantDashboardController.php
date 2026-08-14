@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\TenantContext;
-use Illuminate\Http\Response;
+use App\Services\DashboardService;
+use Illuminate\Support\Carbon;
+use Illuminate\View\View;
 
 class TenantDashboardController extends Controller
 {
-    public function __construct(private TenantContext $tenantContext) {}
+    public function __construct(private DashboardService $dashboardService) {}
 
-    public function index(): Response
+    public function index(): View
     {
-        return response("Tenant dashboard for: {$this->tenantContext->get()->name}");
+        return view('admin.dashboard', $this->dashboardService->summaryFor(Carbon::today()));
     }
 }

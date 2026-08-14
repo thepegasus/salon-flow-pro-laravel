@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Requests\Services;
+
+use App\Services\TenantContext;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateServiceRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        $tenantId = app(TenantContext::class)->get()->id;
+
+        return [
+            'name' => ['sometimes', 'string', 'max:255'],
+            'code' => [
+                'nullable', 'string', 'max:20',
+                Rule::unique('services', 'code')->where('tenant_id', $tenantId)->whereNull('deleted_at')->ignore($this->route('service')),
+            ],
+            'category_id' => [
+                'nullable', 'integer',
+                Rule::exists('service_categories', 'id')->where('tenant_id', $tenantId)->whereNull('deleted_at'),
+            ],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+            'duration_minutes' => ['sometimes', 'integer', 'min:1'],
+            'is_active' => ['sometimes', 'boolean'],
+        ];
+    }
+}

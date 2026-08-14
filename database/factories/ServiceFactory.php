@@ -21,7 +21,9 @@ class ServiceFactory extends Factory
         return [
             'tenant_id' => Tenant::factory(),
             'name' => fake()->randomElement(['Haircut', 'Hair Spa', 'Manicure', 'Pedicure', 'Facial', 'Hair Color']),
-            'category' => fake()->randomElement(['Hair', 'Nails', 'Skin']),
+            'code' => fake()->unique()->numerify('###'),
+            'category_id' => null,
+            'price' => fake()->randomElement([299, 499, 799, 1299, 1999]),
             'duration_minutes' => fake()->randomElement([30, 45, 60, 90]),
             'is_active' => true,
         ];

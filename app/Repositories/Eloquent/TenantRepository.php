@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Tenant;
 use App\Repositories\Contracts\TenantRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
 class TenantRepository implements TenantRepositoryInterface
 {
@@ -22,5 +23,11 @@ class TenantRepository implements TenantRepositoryInterface
     public function findActiveBySlug(string $slug): ?Tenant
     {
         return $this->model->active()->where('slug', $slug)->first();
+    }
+
+    /** @return Collection<int, Tenant> */
+    public function getAllActive(): Collection
+    {
+        return $this->model->active()->get();
     }
 }

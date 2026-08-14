@@ -27,6 +27,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role' => RoleMiddleware::class,
         ]);
+
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->getHost() === config('tenancy.main_domain')) {
+                return $request->getSchemeAndHttpHost().'/';
+            }
+
+            return $request->getSchemeAndHttpHost().'/login';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

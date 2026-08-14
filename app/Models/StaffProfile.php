@@ -59,6 +59,18 @@ class StaffProfile extends Model
         return $this->hasMany(StaffLeaveRequest::class);
     }
 
+    /** @return HasMany<Appointment, $this> */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /** @return BelongsToMany<BridalEngagement, $this> */
+    public function bridalEngagements(): BelongsToMany
+    {
+        return $this->belongsToMany(BridalEngagement::class, 'bridal_engagement_staff');
+    }
+
     /** @param Builder<StaffProfile> $query */
     public function scopeActive(Builder $query): Builder
     {

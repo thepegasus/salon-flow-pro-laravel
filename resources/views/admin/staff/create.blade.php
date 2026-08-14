@@ -3,41 +3,68 @@
 @section('title', 'Add Staff')
 
 @section('content')
-    <h1 class="h3">Add Staff</h1>
-
-    <form action="{{ route('staff.store') }}" method="POST">
-        @csrf
-
-        <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
+    <div class="sfp-page-header">
+        <div>
+            <h1 class="sfp-page-title">Add staff</h1>
+            <p class="sfp-page-subtitle">Create a new staff profile and login</p>
         </div>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" value="{{ old('username') }}">
-        </div>
+    <div class="sfp-card">
+        <form action="{{ route('staff.store') }}" method="POST">
+            @csrf
 
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" value="{{ old('email') }}">
-        </div>
+            <div class="sfp-field">
+                <label class="sfp-label">Name</label>
+                <input type="text" name="name" class="sfp-input" value="{{ old('name') }}">
+                @error('name')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control">
-        </div>
+            <div class="sfp-field">
+                <label class="sfp-label">Username</label>
+                <input type="text" name="username" class="sfp-input" value="{{ old('username') }}">
+                @error('username')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Role</label>
-            <input type="text" name="role" class="form-control" value="{{ old('role') }}">
-        </div>
+            <div class="sfp-field">
+                <label class="sfp-label">Email</label>
+                <input type="email" name="email" class="sfp-input" value="{{ old('email') }}">
+                @error('email')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Job Title</label>
-            <input type="text" name="job_title" class="form-control" value="{{ old('job_title') }}">
-        </div>
+            <div class="sfp-field">
+                <label class="sfp-label">Password</label>
+                <input type="password" name="password" class="sfp-input">
+                @error('password')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
+            <div class="sfp-field">
+                <label class="sfp-label">Role</label>
+                <input type="text" name="role" class="sfp-input" value="{{ old('role') }}">
+                @error('role')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="sfp-field">
+                <label class="sfp-label">Job Title</label>
+                <input type="text" name="job_title" class="sfp-input" value="{{ old('job_title') }}">
+                @error('job_title')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="sfp-form-actions">
+                <button type="submit" class="sfp-btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
 @endsection

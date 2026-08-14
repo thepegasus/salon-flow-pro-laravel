@@ -43,21 +43,21 @@ class StaffsController extends Controller
         return redirect()->route('staff.show', $staffProfile)->with('status', 'Staff member created.');
     }
 
-    public function show(Request $request, StaffProfile $staff): View
+    public function show(Request $request, string $subdomain, StaffProfile $staff): View
     {
         abort_unless($request->user()->can('staff.view'), 403);
 
         return view('admin.staff.show', ['staff' => $staff]);
     }
 
-    public function edit(Request $request, StaffProfile $staff): View
+    public function edit(Request $request, string $subdomain, StaffProfile $staff): View
     {
         abort_unless($request->user()->can('staff.edit'), 403);
 
         return view('admin.staff.edit', ['staff' => $staff]);
     }
 
-    public function update(UpdateStaffRequest $request, StaffProfile $staff): RedirectResponse
+    public function update(UpdateStaffRequest $request, string $subdomain, StaffProfile $staff): RedirectResponse
     {
         abort_unless($request->user()->can('staff.edit'), 403);
 
@@ -66,7 +66,7 @@ class StaffsController extends Controller
         return redirect()->route('staff.show', $staff)->with('status', 'Staff member updated.');
     }
 
-    public function destroy(Request $request, StaffProfile $staff): RedirectResponse
+    public function destroy(Request $request, string $subdomain, StaffProfile $staff): RedirectResponse
     {
         abort_unless($request->user()->can('staff.delete'), 403);
 

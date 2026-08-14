@@ -1,0 +1,597 @@
+/* ==========================================================================
+   SalonFlow Pro — Admin design system
+   Ported from the canonical mockup at C:\Works\htmldesign\saloonflow
+   ========================================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body.sfp-body {
+    margin: 0;
+    background: #ECF0EF;
+    color: #16201D;
+    font-family: Outfit, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.sfp-body a {
+    color: #1B4B8F;
+    text-decoration: none;
+}
+
+.sfp-body a:hover {
+    color: #153B70;
+}
+
+.sfp-body input,
+.sfp-body button,
+.sfp-body select,
+.sfp-body textarea {
+    font: inherit;
+    color: inherit;
+}
+
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1DBD8;
+    border-radius: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+@keyframes sfpIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes sfpSlide {
+    from { transform: translateX(24px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+@keyframes sfpPulse {
+    0%, 100% { opacity: .45; }
+    50% { opacity: 1; }
+}
+
+.sfp-heading {
+    font-family: 'Bricolage Grotesque', Outfit, sans-serif;
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+.sfp-mono {
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ---- Shell / layout ---- */
+
+.sfp-shell {
+    min-height: 100vh;
+    padding: 18px;
+}
+
+.sfp-frame {
+    margin: 0 auto;
+    background: #F3F6F5;
+    border-radius: 26px;
+    overflow: hidden;
+    border: 1px solid #E3EAE8;
+    box-shadow: 0 30px 70px -40px rgba(22, 32, 29, .35);
+    width: 100%;
+    max-width: 1360px;
+}
+
+.sfp-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 22px;
+    background: #fff;
+    border-bottom: 1px solid #E3EAE8;
+}
+
+.sfp-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.sfp-brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 11px;
+    background: #1B4B8F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bricolage Grotesque', Outfit, sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #fff;
+    flex: none;
+}
+
+.sfp-brand-name {
+    font-size: 14.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sfp-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+}
+
+a.sfp-btn-dark,
+button.sfp-btn-dark {
+    border: none;
+    background: #16201D;
+    color: #fff;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+a.sfp-btn-dark:hover,
+button.sfp-btn-dark:hover {
+    background: #27342F;
+    color: #fff;
+}
+
+.sfp-avatar-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid #E3EAE8;
+    background: #E2EDE7;
+    font-family: 'Bricolage Grotesque', Outfit, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    flex: none;
+}
+
+.sfp-body-row {
+    display: flex;
+    align-items: stretch;
+    min-height: 760px;
+}
+
+.sfp-sidebar {
+    width: 214px;
+    flex: none;
+    background: #fff;
+    border-right: 1px solid #E3EAE8;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sfp-sidebar-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    color: #AEBAB7;
+    padding: 8px 12px 10px;
+}
+
+a.sfp-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #5C6866;
+    border-radius: 12px;
+    padding: 11px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: left;
+}
+
+a.sfp-nav-item:hover {
+    background: #F3F6F5;
+    color: #16201D;
+}
+
+a.sfp-nav-item.active {
+    background: #ECF0EF;
+    color: #16201D;
+    font-weight: 500;
+}
+
+.sfp-nav-bar {
+    width: 3px;
+    height: 15px;
+    border-radius: 9px;
+    background: transparent;
+    display: block;
+    flex: none;
+}
+
+.sfp-nav-item.active .sfp-nav-bar {
+    background: #1B4B8F;
+}
+
+.sfp-sidebar-footer {
+    margin-top: auto;
+    padding: 14px 12px;
+    border-radius: 14px;
+    background: #ECF0EF;
+    font-size: 12px;
+    color: #66736F;
+    line-height: 1.5;
+}
+
+.sfp-sidebar-footer strong {
+    font-weight: 500;
+    color: #16201D;
+}
+
+.sfp-content {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 30px 40px;
+    animation: sfpIn .35s ease both;
+}
+
+.sfp-alert-success {
+    padding: 14px 16px;
+    border-radius: 13px;
+    background: #E7F0EA;
+    color: #2F6849;
+    font-size: 13.5px;
+    margin-bottom: 18px;
+}
+
+.sfp-alert-error {
+    padding: 14px 16px;
+    border-radius: 13px;
+    background: #F9E7E7;
+    color: #A8506B;
+    font-size: 13.5px;
+    margin-bottom: 18px;
+}
+
+/* ---- Page header ---- */
+
+.sfp-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.sfp-page-title {
+    font-family: 'Bricolage Grotesque', Outfit, sans-serif;
+    font-weight: 600;
+    font-size: 30px;
+    margin: 0;
+    letter-spacing: -.01em;
+}
+
+.sfp-page-subtitle {
+    font-size: 13.5px;
+    color: #66736F;
+    margin: 6px 0 0;
+}
+
+/* ---- Buttons ---- */
+
+a.sfp-btn-primary,
+button.sfp-btn-primary {
+    border: none;
+    background: #1B4B8F;
+    color: #fff;
+    border-radius: 13px;
+    padding: 13px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+a.sfp-btn-primary:hover,
+button.sfp-btn-primary:hover {
+    background: #153B70;
+    color: #fff;
+}
+
+a.sfp-btn-outline,
+button.sfp-btn-outline {
+    border: 1px solid #E4D8D1;
+    background: #fff;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    cursor: pointer;
+    color: #16201D;
+    display: inline-block;
+}
+
+a.sfp-btn-outline:hover,
+button.sfp-btn-outline:hover {
+    border-color: #1B4B8F;
+    color: #1B4B8F;
+}
+
+a.sfp-btn-pill-dark,
+button.sfp-btn-pill-dark {
+    border: none;
+    background: #16201D;
+    color: #fff;
+    border-radius: 999px;
+    padding: 11px 20px;
+    font-size: 13.5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+a.sfp-btn-pill-dark:hover,
+button.sfp-btn-pill-dark:hover {
+    background: #27342F;
+    color: #fff;
+}
+
+button.sfp-btn-outline.qb-method.active {
+    border-color: #1B4B8F;
+    background: #EEF2F9;
+    color: #1B4B8F;
+}
+
+a.sfp-btn-link-danger,
+button.sfp-btn-link-danger {
+    border: none;
+    background: transparent;
+    color: #A8506B;
+    font-size: 12.5px;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* ---- Cards ---- */
+
+.sfp-card {
+    background: #fff;
+    border: 1px solid #E3EAE8;
+    border-radius: 18px;
+    padding: 20px 22px;
+}
+
+.sfp-card-dark {
+    background: #16201D;
+    color: #EEF3F1;
+    border-radius: 18px;
+    padding: 20px 22px;
+}
+
+.sfp-card-sage {
+    background: #E2EDE7;
+    border-radius: 18px;
+    padding: 20px 22px;
+}
+
+.sfp-card-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+/* ---- Tables ---- */
+
+.sfp-table-wrap {
+    background: #fff;
+    border: 1px solid #E3EAE8;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.sfp-table-head-row {
+    display: grid;
+    padding: 14px 20px;
+    background: #FDFAF8;
+    border-bottom: 1px solid #E3EAE8;
+    font-size: 11.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #94A19D;
+}
+
+.sfp-table-row {
+    display: grid;
+    padding: 15px 20px;
+    border-bottom: 1px solid #EDF1F0;
+    align-items: center;
+}
+
+.sfp-table-row:last-child {
+    border-bottom: none;
+}
+
+.sfp-avatar-chip {
+    width: 32px;
+    height: 32px;
+    border-radius: 11px;
+    background: #E2EDE7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bricolage Grotesque', Outfit, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #2E5F4C;
+    flex: none;
+}
+
+/* ---- Forms ---- */
+
+.sfp-label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #788582;
+    margin-bottom: 8px;
+}
+
+.sfp-input,
+.sfp-select,
+.sfp-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #E4D8D1;
+    border-radius: 14px;
+    background: #fff;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 18px;
+}
+
+.sfp-input:focus,
+.sfp-select:focus,
+.sfp-textarea:focus {
+    border-color: #1B4B8F;
+}
+
+.sfp-field {
+    margin-bottom: 4px;
+}
+
+.sfp-invalid-feedback {
+    display: block;
+    font-size: 12.5px;
+    color: #A8506B;
+    margin-top: -12px;
+    margin-bottom: 14px;
+}
+
+.sfp-form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+/* ---- Badges / pills ---- */
+
+.sfp-pill {
+    font-size: 11.5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.sfp-pill-sage {
+    background: #E2EDE7;
+    color: #2E5F4C;
+}
+
+.sfp-pill-blue {
+    background: #EEF2F9;
+    color: #1B4B8F;
+}
+
+.sfp-pill-amber {
+    background: #FBEEDD;
+    color: #8A5A1B;
+}
+
+.sfp-pill-green {
+    background: #E7F0EA;
+    color: #2F6849;
+}
+
+.sfp-pill-red {
+    background: #F9E7E7;
+    color: #A8506B;
+}
+
+.sfp-pill-purple {
+    background: #EFEAF7;
+    color: #63549A;
+}
+
+.sfp-pill-neutral {
+    background: #F1EBE6;
+    color: #788582;
+}
+
+/* ---- Split layouts ---- */
+
+.sfp-split-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.sfp-split-list-detail {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.sfp-list-item-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: none;
+    background: transparent;
+    border-radius: 13px;
+    padding: 12px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.sfp-list-item-btn:hover {
+    background: #F3F6F5;
+}
+
+.sfp-list-item-btn.active {
+    background: #EEF2F9;
+}
+
+/* ---- Layout utilities (used inline for small one-off flex rows) ---- */
+
+.sfp-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sfp-row-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.sfp-action-link {
+    font-size: 12.5px;
+    color: #66736F;
+}
+
+.sfp-action-link:hover {
+    color: #1B4B8F;
+}

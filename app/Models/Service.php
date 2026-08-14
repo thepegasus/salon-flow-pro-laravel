@@ -11,9 +11,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['tenant_id', 'name', 'category', 'duration_minutes', 'is_active'])]
+#[Fillable(['tenant_id', 'name', 'code', 'category_id', 'price', 'duration_minutes', 'is_active'])]
 #[ScopedBy([TenantScope::class])]
 class Service extends Model
 {
@@ -24,6 +25,7 @@ class Service extends Model
     protected function casts(): array
     {
         return [
+            'price' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }
@@ -34,15 +36,33 @@ class Service extends Model
         return $this->belongsTo(Tenant::class);
     }
 
+    /** @return BelongsTo<ServiceCategory, $this> */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ServiceCategory::class, 'category_id');
+    }
+
     /** @return BelongsToMany<StaffProfile, $this> */
     public function staff(): BelongsToMany
     {
         return $this->belongsToMany(StaffProfile::class, 'staff_service');
     }
 
+    /** @return HasMany<ServicePriceHistory, $this> */
+    public function priceHistories(): HasMany
+    {
+        return $this->hasMany(ServicePriceHistory::class);
+    }
+
     /** @param Builder<Service> $query */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    /** @param Builder<Service> $query */
+    public function scopeWithCode(Builder $query, string $code): Builder
+    {
+        return $query->where('code', $code);
     }
 }

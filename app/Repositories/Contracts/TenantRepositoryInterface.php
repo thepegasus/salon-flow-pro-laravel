@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Tenant;
+use Illuminate\Database\Eloquent\Collection;
 
 interface TenantRepositoryInterface
 {
@@ -11,4 +12,7 @@ interface TenantRepositoryInterface
     public function findActiveBySubdomain(string $subdomain): ?Tenant;
 
     public function findActiveBySlug(string $slug): ?Tenant;
+
+    /** @return Collection<int, Tenant> */
+    public function getAllActive(): Collection;
 }
