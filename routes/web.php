@@ -4,12 +4,20 @@ use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\BillsController;
 use App\Http\Controllers\BridalEngagementsController;
 use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\CommissionEarningsController;
+use App\Http\Controllers\CommissionRatesController;
+use App\Http\Controllers\ExpenseCategoriesController;
+use App\Http\Controllers\ExpensesController;
+use App\Http\Controllers\InventoryCategoriesController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\QuickBillController;
 use App\Http\Controllers\ServiceCategoriesController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\StaffIncentivesController;
 use App\Http\Controllers\StaffLeaveRequestsController;
 use App\Http\Controllers\StaffsController;
+use App\Http\Controllers\StockAdjustmentsController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\TenantDashboardController;
 use App\Http\Controllers\WalkInsController;
@@ -86,6 +94,35 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
             Route::get('/services/{service}', [ServicesController::class, 'show'])->name("services.show{$nameSuffix}");
         });
 
+        Route::middleware('permission:inventory.view')->group(function () use ($nameSuffix): void {
+            Route::get('/products', [ProductsController::class, 'index'])->name("products.index{$nameSuffix}");
+            Route::get('/products/categories', [InventoryCategoriesController::class, 'index'])->name("productCategories.index{$nameSuffix}");
+        });
+
+        Route::middleware('permission:inventory.create')->group(function () use ($nameSuffix): void {
+            Route::get('/products/create', [ProductsController::class, 'create'])->name("products.create{$nameSuffix}");
+            Route::post('/products', [ProductsController::class, 'store'])->name("products.store{$nameSuffix}");
+            Route::get('/products/categories/create', [InventoryCategoriesController::class, 'create'])->name("productCategories.create{$nameSuffix}");
+            Route::post('/products/categories', [InventoryCategoriesController::class, 'store'])->name("productCategories.store{$nameSuffix}");
+        });
+
+        Route::middleware('permission:inventory.edit')->group(function () use ($nameSuffix): void {
+            Route::get('/products/{product}/edit', [ProductsController::class, 'edit'])->name("products.edit{$nameSuffix}");
+            Route::put('/products/{product}', [ProductsController::class, 'update'])->name("products.update{$nameSuffix}");
+            Route::post('/products/{product}/stock-adjustments', [StockAdjustmentsController::class, 'store'])->name("products.stockAdjustments.store{$nameSuffix}");
+            Route::get('/products/categories/{category}/edit', [InventoryCategoriesController::class, 'edit'])->name("productCategories.edit{$nameSuffix}");
+            Route::put('/products/categories/{category}', [InventoryCategoriesController::class, 'update'])->name("productCategories.update{$nameSuffix}");
+        });
+
+        Route::middleware('permission:inventory.delete')->group(function () use ($nameSuffix): void {
+            Route::delete('/products/{product}', [ProductsController::class, 'destroy'])->name("products.destroy{$nameSuffix}");
+            Route::delete('/products/categories/{category}', [InventoryCategoriesController::class, 'destroy'])->name("productCategories.destroy{$nameSuffix}");
+        });
+
+        Route::middleware('permission:inventory.view')->group(function () use ($nameSuffix): void {
+            Route::get('/products/{product}', [ProductsController::class, 'show'])->name("products.show{$nameSuffix}");
+        });
+
         Route::middleware('permission:appointments.view')->group(function () use ($nameSuffix): void {
             Route::get('/appointments', [AppointmentsController::class, 'index'])->name("appointments.index{$nameSuffix}");
             Route::get('/walk-ins', [WalkInsController::class, 'index'])->name("walkIns.index{$nameSuffix}");
@@ -160,6 +197,55 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
 
         Route::middleware('permission:billing.view')->group(function () use ($nameSuffix): void {
             Route::get('/bills/{bill}', [BillsController::class, 'show'])->name("bills.show{$nameSuffix}");
+        });
+
+        Route::middleware('permission:expenses.view')->group(function () use ($nameSuffix): void {
+            Route::get('/expenses', [ExpensesController::class, 'index'])->name("expenses.index{$nameSuffix}");
+            Route::get('/expenses/categories', [ExpenseCategoriesController::class, 'index'])->name("expenseCategories.index{$nameSuffix}");
+        });
+
+        Route::middleware('permission:expenses.create')->group(function () use ($nameSuffix): void {
+            Route::get('/expenses/create', [ExpensesController::class, 'create'])->name("expenses.create{$nameSuffix}");
+            Route::post('/expenses', [ExpensesController::class, 'store'])->name("expenses.store{$nameSuffix}");
+            Route::get('/expenses/categories/create', [ExpenseCategoriesController::class, 'create'])->name("expenseCategories.create{$nameSuffix}");
+            Route::post('/expenses/categories', [ExpenseCategoriesController::class, 'store'])->name("expenseCategories.store{$nameSuffix}");
+        });
+
+        Route::middleware('permission:expenses.edit')->group(function () use ($nameSuffix): void {
+            Route::get('/expenses/{expense}/edit', [ExpensesController::class, 'edit'])->name("expenses.edit{$nameSuffix}");
+            Route::put('/expenses/{expense}', [ExpensesController::class, 'update'])->name("expenses.update{$nameSuffix}");
+            Route::get('/expenses/categories/{category}/edit', [ExpenseCategoriesController::class, 'edit'])->name("expenseCategories.edit{$nameSuffix}");
+            Route::put('/expenses/categories/{category}', [ExpenseCategoriesController::class, 'update'])->name("expenseCategories.update{$nameSuffix}");
+        });
+
+        Route::middleware('permission:expenses.delete')->group(function () use ($nameSuffix): void {
+            Route::delete('/expenses/{expense}', [ExpensesController::class, 'destroy'])->name("expenses.destroy{$nameSuffix}");
+            Route::delete('/expenses/categories/{category}', [ExpenseCategoriesController::class, 'destroy'])->name("expenseCategories.destroy{$nameSuffix}");
+        });
+
+        Route::middleware('permission:expenses.view')->group(function () use ($nameSuffix): void {
+            Route::get('/expenses/{expense}', [ExpensesController::class, 'show'])->name("expenses.show{$nameSuffix}");
+        });
+
+        Route::middleware('permission:commissions.view')->group(function () use ($nameSuffix): void {
+            Route::get('/commission-rates', [CommissionRatesController::class, 'index'])->name("commissionRates.index{$nameSuffix}");
+            Route::get('/commission-earnings', [CommissionEarningsController::class, 'index'])->name("commissionEarnings.index{$nameSuffix}");
+        });
+
+        Route::middleware('permission:commissions.create')->group(function () use ($nameSuffix): void {
+            Route::get('/commission-rates/create', [CommissionRatesController::class, 'create'])->name("commissionRates.create{$nameSuffix}");
+            Route::post('/commission-rates', [CommissionRatesController::class, 'store'])->name("commissionRates.store{$nameSuffix}");
+            Route::get('/staff-incentives/create', [StaffIncentivesController::class, 'create'])->name("staffIncentives.create{$nameSuffix}");
+            Route::post('/staff-incentives', [StaffIncentivesController::class, 'store'])->name("staffIncentives.store{$nameSuffix}");
+        });
+
+        Route::middleware('permission:commissions.edit')->group(function () use ($nameSuffix): void {
+            Route::get('/commission-rates/{commissionRate}/edit', [CommissionRatesController::class, 'edit'])->name("commissionRates.edit{$nameSuffix}");
+            Route::put('/commission-rates/{commissionRate}', [CommissionRatesController::class, 'update'])->name("commissionRates.update{$nameSuffix}");
+        });
+
+        Route::middleware('permission:commissions.delete')->group(function () use ($nameSuffix): void {
+            Route::delete('/commission-rates/{commissionRate}', [CommissionRatesController::class, 'destroy'])->name("commissionRates.destroy{$nameSuffix}");
         });
     });
 };

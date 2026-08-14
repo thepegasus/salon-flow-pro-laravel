@@ -58,6 +58,12 @@
                         </a>
                     @endcan
 
+                    @can('expenses.view')
+                        <a href="{{ $tenantUrl->route('expenses.index') }}" class="sfp-nav-item {{ request()->routeIs('expenses.*') || request()->routeIs('expenseCategories.*') ? 'active' : '' }}">
+                            <span class="sfp-nav-bar"></span>Expenses
+                        </a>
+                    @endcan
+
                     @can('clients.view')
                         <a href="{{ $tenantUrl->route('clients.index') }}" class="sfp-nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Clients
@@ -70,9 +76,21 @@
                         </a>
                     @endcan
 
+                    @can('inventory.view')
+                        <a href="{{ $tenantUrl->route('products.index') }}" class="sfp-nav-item {{ request()->routeIs('products.*') || request()->routeIs('productCategories.*') ? 'active' : '' }}">
+                            <span class="sfp-nav-bar"></span>Inventory
+                        </a>
+                    @endcan
+
                     @can('staff.view')
                         <a href="{{ $tenantUrl->route('staff.index') }}" class="sfp-nav-item {{ request()->routeIs('staff.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Staff &amp; roster
+                        </a>
+                    @endcan
+
+                    @can('commissions.view')
+                        <a href="{{ $tenantUrl->route('commissionEarnings.index') }}" class="sfp-nav-item {{ request()->routeIs('commissionEarnings.*') || request()->routeIs('commissionRates.*') || request()->routeIs('staffIncentives.*') ? 'active' : '' }}">
+                            <span class="sfp-nav-bar"></span>Commission
                         </a>
                     @endcan
 

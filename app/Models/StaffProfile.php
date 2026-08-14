@@ -65,6 +65,18 @@ class StaffProfile extends Model
         return $this->hasMany(Appointment::class);
     }
 
+    /** @return HasMany<CommissionRate, $this> */
+    public function commissionRates(): HasMany
+    {
+        return $this->hasMany(CommissionRate::class);
+    }
+
+    /** @return HasMany<StaffIncentive, $this> */
+    public function incentives(): HasMany
+    {
+        return $this->hasMany(StaffIncentive::class);
+    }
+
     /** @return BelongsToMany<BridalEngagement, $this> */
     public function bridalEngagements(): BelongsToMany
     {

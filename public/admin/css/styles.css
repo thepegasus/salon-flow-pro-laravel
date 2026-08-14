@@ -536,6 +536,21 @@ button.sfp-btn-link-danger {
     color: #788582;
 }
 
+/* ---- Inventory ---- */
+
+.sfp-stock-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+    background: #2F6849;
+}
+
+.sfp-stock-dot-low {
+    background: #A8506B;
+}
+
 /* ---- Split layouts ---- */
 
 .sfp-split-2 {

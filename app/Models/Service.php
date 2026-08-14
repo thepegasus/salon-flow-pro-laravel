@@ -54,6 +54,12 @@ class Service extends Model
         return $this->hasMany(ServicePriceHistory::class);
     }
 
+    /** @return BelongsToMany<Product, $this> */
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'service_product_usages')->withPivot('quantity_used');
+    }
+
     /** @param Builder<Service> $query */
     public function scopeActive(Builder $query): Builder
     {
