@@ -13,7 +13,7 @@
                 <input type="date" name="date" value="{{ $date }}" class="sfp-input" style="margin-bottom:0;max-width:200px" onchange="this.form.submit()">
             </form>
             @can('billing.create')
-                <a href="{{ route('bills.quick.create') }}" class="sfp-btn-primary">Quick bill (keyboard)</a>
+                <a href="{{ $tenantUrl->route('bills.quick.create') }}" class="sfp-btn-primary">Quick bill (keyboard)</a>
             @endcan
         </div>
     </div>
@@ -44,7 +44,7 @@
                 <span class="sfp-mono" style="font-size:13.5px">&#8377;{{ number_format($bill->total, 2) }}</span>
                 <span class="sfp-mono" style="font-size:13.5px;color:#66736F">&#8377;{{ number_format($bill->amount_paid, 2) }}</span>
                 <span class="sfp-pill {{ $statusPillClass }}">{{ ucfirst($bill->status) }}</span>
-                <a href="{{ route('bills.show', $bill) }}" style="font-size:12.5px;color:#1B4B8F">View</a>
+                <a href="{{ $tenantUrl->route('bills.show', $bill) }}" style="font-size:12.5px;color:#1B4B8F">View</a>
             </div>
         @empty
             <div class="sfp-table-row" style="grid-template-columns:1fr">

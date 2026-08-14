@@ -7,6 +7,7 @@ use App\Http\Requests\ServiceCategories\UpdateServiceCategoryRequest;
 use App\Models\ServiceCategory;
 use App\Repositories\Contracts\ServiceCategoryRepositoryInterface;
 use App\Services\TenantContext;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class ServiceCategoriesController extends Controller
     public function __construct(
         private ServiceCategoryRepositoryInterface $categoryRepository,
         private TenantContext $tenantContext,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -43,7 +45,7 @@ class ServiceCategoriesController extends Controller
             'tenant_id' => $this->tenantContext->get()->id,
         ]);
 
-        return redirect()->route('serviceCategories.index')->with('status', 'Category created.');
+        return redirect($this->tenantUrl->route('serviceCategories.index'))->with('status', 'Category created.');
     }
 
     public function edit(Request $request, string $subdomain, ServiceCategory $category): View
@@ -59,7 +61,7 @@ class ServiceCategoriesController extends Controller
 
         $this->categoryRepository->update($category, $request->validated());
 
-        return redirect()->route('serviceCategories.index')->with('status', 'Category updated.');
+        return redirect($this->tenantUrl->route('serviceCategories.index'))->with('status', 'Category updated.');
     }
 
     public function destroy(Request $request, string $subdomain, ServiceCategory $category): RedirectResponse
@@ -68,6 +70,6 @@ class ServiceCategoriesController extends Controller
 
         $this->categoryRepository->delete($category);
 
-        return redirect()->route('serviceCategories.index')->with('status', 'Category removed.');
+        return redirect($this->tenantUrl->route('serviceCategories.index'))->with('status', 'Category removed.');
     }
 }

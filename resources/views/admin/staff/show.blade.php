@@ -10,10 +10,10 @@
         </div>
         <div class="sfp-form-actions">
             @can('staff.edit')
-                <a href="{{ route('staff.edit', $staff) }}" class="sfp-btn-outline">Edit</a>
+                <a href="{{ $tenantUrl->route('staff.edit', $staff) }}" class="sfp-btn-outline">Edit</a>
             @endcan
             @can('staff.delete')
-                <form action="{{ route('staff.destroy', $staff) }}" method="POST">
+                <form action="{{ $tenantUrl->route('staff.destroy', $staff) }}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="sfp-btn-link-danger">Remove</button>

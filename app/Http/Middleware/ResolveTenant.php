@@ -65,6 +65,8 @@ class ResolveTenant
         $slug = $request->segment(1);
 
         if (! $slug) {
+            $this->tenantContext->markNoneResolved();
+
             return $next($request);
         }
 
@@ -77,6 +79,8 @@ class ResolveTenant
         $tenant = $this->tenants->findActiveBySlug($slug);
 
         if (! $tenant) {
+            $this->tenantContext->markNoneResolved();
+
             return $next($request);
         }
 

@@ -7,6 +7,7 @@ use App\Http\Requests\Staff\StoreLeaveRequestRequest;
 use App\Models\StaffLeaveRequest;
 use App\Repositories\Contracts\StaffLeaveRequestRepositoryInterface;
 use App\Services\LeaveRequestService;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class StaffLeaveRequestsController extends Controller
     public function __construct(
         private StaffLeaveRequestRepositoryInterface $leaveRequestRepository,
         private LeaveRequestService $leaveRequestService,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -33,7 +35,7 @@ class StaffLeaveRequestsController extends Controller
 
         $this->leaveRequestService->request($request->validated());
 
-        return redirect()->route('staff.leaveRequests.index')->with('status', 'Leave request submitted.');
+        return redirect($this->tenantUrl->route('staff.leaveRequests.index'))->with('status', 'Leave request submitted.');
     }
 
     public function update(DecideLeaveRequestRequest $request, string $subdomain, StaffLeaveRequest $leaveRequest): RedirectResponse
@@ -48,6 +50,6 @@ class StaffLeaveRequestsController extends Controller
             $this->leaveRequestService->reject($leaveRequest, $request->user()->id, $data['decision_note'] ?? null);
         }
 
-        return redirect()->route('staff.leaveRequests.index')->with('status', 'Leave request updated.');
+        return redirect($this->tenantUrl->route('staff.leaveRequests.index'))->with('status', 'Leave request updated.');
     }
 }

@@ -23,9 +23,9 @@
                 </div>
                 <div class="sfp-topbar-actions">
                     @can('appointments.create')
-                        <a href="{{ route('appointments.create') }}" class="sfp-btn-dark">+ New booking</a>
+                        <a href="{{ $tenantUrl->route('appointments.create') }}" class="sfp-btn-dark">+ New booking</a>
                     @endcan
-                    <form action="{{ route('logout') }}" method="POST">
+                    <form action="{{ $tenantUrl->route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="sfp-avatar-btn" title="Sign out">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</button>
                     </form>
@@ -36,42 +36,42 @@
                 <nav class="sfp-sidebar">
                     <div class="sfp-sidebar-label">STUDIO</div>
 
-                    <a href="{{ route('tenant.dashboard') }}" class="sfp-nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
+                    <a href="{{ $tenantUrl->route('tenant.dashboard') }}" class="sfp-nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
                         <span class="sfp-nav-bar"></span>Dashboard
                     </a>
 
                     @can('appointments.view')
-                        <a href="{{ route('appointments.index') }}" class="sfp-nav-item {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('appointments.index') }}" class="sfp-nav-item {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Calendar
                         </a>
-                        <a href="{{ route('walkIns.index') }}" class="sfp-nav-item {{ request()->routeIs('walkIns.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('walkIns.index') }}" class="sfp-nav-item {{ request()->routeIs('walkIns.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Walk-ins
                         </a>
-                        <a href="{{ route('bridalEngagements.index') }}" class="sfp-nav-item {{ request()->routeIs('bridalEngagements.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('bridalEngagements.index') }}" class="sfp-nav-item {{ request()->routeIs('bridalEngagements.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Bridal &amp; events
                         </a>
                     @endcan
 
                     @can('billing.view')
-                        <a href="{{ route('bills.index') }}" class="sfp-nav-item {{ request()->routeIs('bills.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('bills.index') }}" class="sfp-nav-item {{ request()->routeIs('bills.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Billing
                         </a>
                     @endcan
 
                     @can('clients.view')
-                        <a href="{{ route('clients.index') }}" class="sfp-nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('clients.index') }}" class="sfp-nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Clients
                         </a>
                     @endcan
 
                     @can('services.view')
-                        <a href="{{ route('services.index') }}" class="sfp-nav-item {{ request()->routeIs('services.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('services.index') }}" class="sfp-nav-item {{ request()->routeIs('services.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Services
                         </a>
                     @endcan
 
                     @can('staff.view')
-                        <a href="{{ route('staff.index') }}" class="sfp-nav-item {{ request()->routeIs('staff.*') ? 'active' : '' }}">
+                        <a href="{{ $tenantUrl->route('staff.index') }}" class="sfp-nav-item {{ request()->routeIs('staff.*') ? 'active' : '' }}">
                             <span class="sfp-nav-bar"></span>Staff &amp; roster
                         </a>
                     @endcan

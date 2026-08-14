@@ -20,7 +20,7 @@
             <h1 class="sfp-page-title">{{ $engagement->client->name }}</h1>
             <p class="sfp-page-subtitle">{{ $engagement->event_date->format('d M Y') }}@if ($engagement->venue) &middot; {{ $engagement->venue }} @endif</p>
         </div>
-        <a href="{{ route('bridalEngagements.index') }}" class="sfp-btn-outline">Back to engagements</a>
+        <a href="{{ $tenantUrl->route('bridalEngagements.index') }}" class="sfp-btn-outline">Back to engagements</a>
     </div>
 
     <div class="sfp-card">

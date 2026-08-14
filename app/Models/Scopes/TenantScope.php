@@ -21,6 +21,12 @@ class TenantScope implements Scope
         $tenant = $context->get();
 
         if (! $tenant) {
+            if ($context->isNoneResolved()) {
+                $builder->whereRaw('1 = 0');
+
+                return;
+            }
+
             $modelClass = $model::class;
 
             throw new NoTenantContextException(

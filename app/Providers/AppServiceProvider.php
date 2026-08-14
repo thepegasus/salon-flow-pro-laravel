@@ -60,5 +60,9 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.admin', function ($view): void {
             $view->with('tenant', $this->app->make(TenantContext::class)->get());
         });
+
+        View::composer('*', function ($view): void {
+            $view->with('tenantUrl', $this->app->make(TenantUrl::class));
+        });
     }
 }

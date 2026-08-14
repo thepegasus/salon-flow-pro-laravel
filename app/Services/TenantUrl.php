@@ -11,12 +11,18 @@ class TenantUrl
      * slug-prefixed variant depending on how the current request arrived,
      * so callers never need to know which mode is active.
      *
-     * @param  array<string, mixed>  $parameters
+     * Accepts the same shapes Laravel's own route() helper does: a single
+     * model/scalar (implicit route-model binding), or an array of named
+     * parameters.
      */
-    public function route(string $name, array $parameters = []): string
+    public function route(string $name, mixed $parameters = []): string
     {
         $tenant = $this->tenantContext->get();
         $slugPrefix = request()->attributes->get('tenant_slug_prefix');
+
+        if (! is_array($parameters)) {
+            $parameters = [$parameters];
+        }
 
         if ($slugPrefix && $tenant) {
             return route($name.'.bySlug', ['slug' => $tenant->slug, ...$parameters]);

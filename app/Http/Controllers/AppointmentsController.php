@@ -9,6 +9,7 @@ use App\Http\Requests\Appointments\StoreAppointmentRequest;
 use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Services\AppointmentService;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -20,6 +21,7 @@ class AppointmentsController extends Controller
     public function __construct(
         private AppointmentRepositoryInterface $appointmentRepository,
         private AppointmentService $appointmentService,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -59,7 +61,7 @@ class AppointmentsController extends Controller
             return back()->withErrors(['services' => $exception->getMessage()])->withInput();
         }
 
-        return redirect()->route('appointments.show', $appointment)->with('status', 'Appointment booked.');
+        return redirect($this->tenantUrl->route('appointments.show', ['appointment' => $appointment]))->with('status', 'Appointment booked.');
     }
 
     public function show(Request $request, string $subdomain, Appointment $appointment): View
@@ -86,7 +88,7 @@ class AppointmentsController extends Controller
             return back()->withErrors(['start_at' => $exception->getMessage()])->withInput();
         }
 
-        return redirect()->route('appointments.show', $appointment)->with('status', 'Appointment rescheduled.');
+        return redirect($this->tenantUrl->route('appointments.show', ['appointment' => $appointment]))->with('status', 'Appointment rescheduled.');
     }
 
     public function cancel(CancelAppointmentRequest $request, string $subdomain, Appointment $appointment): RedirectResponse
@@ -95,7 +97,7 @@ class AppointmentsController extends Controller
 
         $this->appointmentService->cancel($appointment, $request->validated()['reason'], $request->user()->id);
 
-        return redirect()->route('appointments.index')->with('status', 'Appointment cancelled.');
+        return redirect($this->tenantUrl->route('appointments.index'))->with('status', 'Appointment cancelled.');
     }
 
     public function noShow(Request $request, string $subdomain, Appointment $appointment): RedirectResponse
@@ -104,6 +106,6 @@ class AppointmentsController extends Controller
 
         $this->appointmentService->markNoShow($appointment, $request->user()->id);
 
-        return redirect()->route('appointments.index')->with('status', 'Marked as no-show.');
+        return redirect($this->tenantUrl->route('appointments.index'))->with('status', 'Marked as no-show.');
     }
 }

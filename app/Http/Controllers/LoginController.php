@@ -10,8 +10,12 @@ use Illuminate\View\View;
 
 class LoginController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View|RedirectResponse
     {
+        if (Auth::check()) {
+            return redirect($this->pathFor($request, 'dashboard'));
+        }
+
         return view('auth.login');
     }
 
@@ -25,16 +29,34 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended($request->getSchemeAndHttpHost().'/dashboard');
+        return redirect()->intended($this->pathFor($request, 'dashboard'));
     }
 
     public function destroy(Request $request): RedirectResponse
     {
+        $loginPath = $this->pathFor($request, 'login');
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect($request->getSchemeAndHttpHost().'/login');
+        return redirect($loginPath);
+    }
+
+    /**
+     * Builds a same-style URL for the given tail path: keeps the {slug}
+     * prefix when the request was reached via salonflow.test/{slug}/..., or
+     * uses the bare subdomain host otherwise.
+     */
+    private function pathFor(Request $request, string $tail): string
+    {
+        $slugPrefix = $request->attributes->get('tenant_slug_prefix');
+
+        if ($slugPrefix) {
+            return $request->getSchemeAndHttpHost()."/{$slugPrefix}/{$tail}";
+        }
+
+        return $request->getSchemeAndHttpHost()."/{$tail}";
     }
 }

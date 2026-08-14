@@ -26,13 +26,13 @@
 
                 @can('staff.edit')
                     <div class="sfp-form-actions" style="margin-top: 12px;">
-                        <form action="{{ route('staff.leaveRequests.update', $leaveRequest) }}" method="POST">
+                        <form action="{{ $tenantUrl->route('staff.leaveRequests.update', $leaveRequest) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="status" value="approved">
                             <button type="submit" style="border: none; background: #E7F0EA; color: #2F6849; border-radius: 999px; padding: 9px 16px; font-size: 12.5px; cursor: pointer;">Approve</button>
                         </form>
-                        <form action="{{ route('staff.leaveRequests.update', $leaveRequest) }}" method="POST">
+                        <form action="{{ $tenantUrl->route('staff.leaveRequests.update', $leaveRequest) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="status" value="rejected">

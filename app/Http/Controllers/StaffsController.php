@@ -7,6 +7,7 @@ use App\Http\Requests\Staff\UpdateStaffRequest;
 use App\Models\StaffProfile;
 use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use App\Services\StaffService;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class StaffsController extends Controller
     public function __construct(
         private StaffProfileRepositoryInterface $staffProfileRepository,
         private StaffService $staffService,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -40,7 +42,7 @@ class StaffsController extends Controller
 
         $staffProfile = $this->staffService->create($request->validated());
 
-        return redirect()->route('staff.show', $staffProfile)->with('status', 'Staff member created.');
+        return redirect($this->tenantUrl->route('staff.show', ['staff' => $staffProfile]))->with('status', 'Staff member created.');
     }
 
     public function show(Request $request, string $subdomain, StaffProfile $staff): View
@@ -63,7 +65,7 @@ class StaffsController extends Controller
 
         $this->staffService->update($staff, $request->validated());
 
-        return redirect()->route('staff.show', $staff)->with('status', 'Staff member updated.');
+        return redirect($this->tenantUrl->route('staff.show', ['staff' => $staff]))->with('status', 'Staff member updated.');
     }
 
     public function destroy(Request $request, string $subdomain, StaffProfile $staff): RedirectResponse
@@ -72,6 +74,6 @@ class StaffsController extends Controller
 
         $this->staffProfileRepository->delete($staff);
 
-        return redirect()->route('staff.index')->with('status', 'Staff member removed.');
+        return redirect($this->tenantUrl->route('staff.index'))->with('status', 'Staff member removed.');
     }
 }

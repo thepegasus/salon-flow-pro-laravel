@@ -10,6 +10,7 @@ use App\Models\Appointment;
 use App\Models\Bill;
 use App\Repositories\Contracts\BillRepositoryInterface;
 use App\Services\BillingService;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,6 +21,7 @@ class BillsController extends Controller
     public function __construct(
         private BillRepositoryInterface $billRepository,
         private BillingService $billingService,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -42,7 +44,7 @@ class BillsController extends Controller
             $request->validated()['manual_items'] ?? [],
         );
 
-        return redirect()->route('bills.show', $bill)->with('status', 'Bill generated.');
+        return redirect($this->tenantUrl->route('bills.show', ['bill' => $bill]))->with('status', 'Bill generated.');
     }
 
     public function storeManual(StoreManualBillRequest $request): RedirectResponse
@@ -52,7 +54,7 @@ class BillsController extends Controller
         $data = $request->validated();
         $bill = $this->billingService->createManualBill($data['client_id'], $request->user()->id, $data['items']);
 
-        return redirect()->route('bills.show', $bill)->with('status', 'Bill created.');
+        return redirect($this->tenantUrl->route('bills.show', ['bill' => $bill]))->with('status', 'Bill created.');
     }
 
     public function show(Request $request, string $subdomain, Bill $bill): View
@@ -70,7 +72,7 @@ class BillsController extends Controller
 
         $this->billingService->recordPayments($bill, $request->validated()['payments'], $request->user()->id);
 
-        return redirect()->route('bills.show', $bill)->with('status', 'Payment recorded.');
+        return redirect($this->tenantUrl->route('bills.show', ['bill' => $bill]))->with('status', 'Payment recorded.');
     }
 
     public function refund(RefundBillRequest $request, string $subdomain, Bill $bill): RedirectResponse
@@ -85,6 +87,6 @@ class BillsController extends Controller
             return back()->withErrors(['amount' => $exception->getMessage()]);
         }
 
-        return redirect()->route('bills.show', $bill)->with('status', 'Refund recorded.');
+        return redirect($this->tenantUrl->route('bills.show', ['bill' => $bill]))->with('status', 'Refund recorded.');
     }
 }

@@ -9,7 +9,7 @@
             <p class="sfp-page-subtitle">Approved leave is blocked from booking automatically</p>
         </div>
         @can('staff.create')
-            <a href="{{ route('staff.create') }}" class="sfp-btn-pill-dark">+ Add staff</a>
+            <a href="{{ $tenantUrl->route('staff.create') }}" class="sfp-btn-pill-dark">+ Add staff</a>
         @endcan
     </div>
 
@@ -38,12 +38,12 @@
                     @endif
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <a href="{{ route('staff.show', $member) }}" class="sfp-btn-outline">View</a>
+                    <a href="{{ $tenantUrl->route('staff.show', $member) }}" class="sfp-btn-outline">View</a>
                     @can('staff.edit')
-                        <a href="{{ route('staff.edit', $member) }}" class="sfp-btn-outline">Edit</a>
+                        <a href="{{ $tenantUrl->route('staff.edit', $member) }}" class="sfp-btn-outline">Edit</a>
                     @endcan
                     @can('staff.delete')
-                        <form action="{{ route('staff.destroy', $member) }}" method="POST">
+                        <form action="{{ $tenantUrl->route('staff.destroy', $member) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="sfp-btn-link-danger">Remove</button>

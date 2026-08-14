@@ -13,7 +13,7 @@
                 <input type="date" name="date" value="{{ $date->toDateString() }}" class="sfp-input" style="max-width: 170px; margin-bottom: 0" onchange="this.form.submit()">
             </form>
             @can('appointments.create')
-                <a href="{{ route('appointments.create') }}" class="sfp-btn-primary">+ New appointment</a>
+                <a href="{{ $tenantUrl->route('appointments.create') }}" class="sfp-btn-primary">+ New appointment</a>
             @endcan
         </div>
     </div>
@@ -66,7 +66,7 @@
                     </span>
                 </div>
                 <div>
-                    <a href="{{ route('appointments.show', $appointment) }}" class="sfp-action-link">View</a>
+                    <a href="{{ $tenantUrl->route('appointments.show', $appointment) }}" class="sfp-action-link">View</a>
                 </div>
             </div>
         @endforeach

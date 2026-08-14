@@ -11,7 +11,7 @@
     </div>
 
     <div class="sfp-card">
-        <form action="{{ route('services.store') }}" method="POST">
+        <form action="{{ $tenantUrl->route('services.store') }}" method="POST">
             @csrf
 
             <div class="sfp-split-2">
@@ -43,7 +43,7 @@
                 @error('category_id')
                     <span class="sfp-invalid-feedback">{{ $message }}</span>
                 @enderror
-                <a href="{{ route('serviceCategories.create') }}" class="sfp-action-link" style="font-size:12px">+ Add a new category</a>
+                <a href="{{ $tenantUrl->route('serviceCategories.create') }}" class="sfp-action-link" style="font-size:12px">+ Add a new category</a>
             </div>
 
             <div class="sfp-split-2">
@@ -66,7 +66,7 @@
 
             <div class="sfp-form-actions">
                 <button type="submit" class="sfp-btn-primary">Save</button>
-                <a href="{{ route('services.index') }}" class="sfp-btn-outline">Cancel</a>
+                <a href="{{ $tenantUrl->route('services.index') }}" class="sfp-btn-outline">Cancel</a>
             </div>
         </form>
     </div>

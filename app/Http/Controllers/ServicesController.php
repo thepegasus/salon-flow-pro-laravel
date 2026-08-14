@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Repositories\Contracts\ServiceCategoryRepositoryInterface;
 use App\Repositories\Contracts\ServiceRepositoryInterface;
 use App\Services\ServiceCatalogService;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,6 +19,7 @@ class ServicesController extends Controller
         private ServiceRepositoryInterface $serviceRepository,
         private ServiceCategoryRepositoryInterface $categoryRepository,
         private ServiceCatalogService $serviceCatalogService,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -44,7 +46,7 @@ class ServicesController extends Controller
 
         $service = $this->serviceCatalogService->create($request->validated(), $request->user()->id);
 
-        return redirect()->route('services.show', $service)->with('status', 'Service created.');
+        return redirect($this->tenantUrl->route('services.show', ['service' => $service]))->with('status', 'Service created.');
     }
 
     public function show(Request $request, string $subdomain, Service $service): View
@@ -69,7 +71,7 @@ class ServicesController extends Controller
 
         $this->serviceCatalogService->update($service, $request->validated(), $request->user()->id);
 
-        return redirect()->route('services.show', $service)->with('status', 'Service updated.');
+        return redirect($this->tenantUrl->route('services.show', ['service' => $service]))->with('status', 'Service updated.');
     }
 
     public function destroy(Request $request, string $subdomain, Service $service): RedirectResponse
@@ -78,6 +80,6 @@ class ServicesController extends Controller
 
         $this->serviceCatalogService->deactivate($service);
 
-        return redirect()->route('services.index')->with('status', 'Service disabled.');
+        return redirect($this->tenantUrl->route('services.index'))->with('status', 'Service disabled.');
     }
 }

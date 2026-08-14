@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Billing\SettleQuickBillRequest;
 use App\Services\QuickBillService;
+use App\Services\TenantUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,7 +12,10 @@ use InvalidArgumentException;
 
 class QuickBillController extends Controller
 {
-    public function __construct(private QuickBillService $quickBillService) {}
+    public function __construct(
+        private QuickBillService $quickBillService,
+        private TenantUrl $tenantUrl,
+    ) {}
 
     public function create(Request $request): View
     {
@@ -88,7 +92,7 @@ class QuickBillController extends Controller
             'bill_id' => $bill->id,
             'bill_number' => $bill->bill_number,
             'total' => (float) $bill->total,
-            'redirect' => route('bills.show', $bill),
+            'redirect' => $this->tenantUrl->route('bills.show', ['bill' => $bill]),
         ]);
     }
 }

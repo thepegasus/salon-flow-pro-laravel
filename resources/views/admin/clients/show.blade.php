@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="margin-bottom:18px">
-        <a href="{{ route('clients.index') }}" class="sfp-action-link">&larr; Back to clients</a>
+        <a href="{{ $tenantUrl->route('clients.index') }}" class="sfp-action-link">&larr; Back to clients</a>
     </div>
 
     <div class="sfp-page-header">
@@ -26,7 +26,7 @@
             </div>
         </div>
         @can('clients.edit')
-            <a href="{{ route('clients.edit', $client) }}" class="sfp-btn-outline">Edit client</a>
+            <a href="{{ $tenantUrl->route('clients.edit', $client) }}" class="sfp-btn-outline">Edit client</a>
         @endcan
     </div>
 

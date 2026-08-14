@@ -14,7 +14,7 @@
             </p>
         </div>
         @can('services.edit')
-            <a href="{{ route('services.edit', $service) }}" class="sfp-btn-outline">Edit service</a>
+            <a href="{{ $tenantUrl->route('services.edit', $service) }}" class="sfp-btn-outline">Edit service</a>
         @endcan
     </div>
 

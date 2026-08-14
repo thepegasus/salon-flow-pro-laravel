@@ -7,6 +7,7 @@ use App\Http\Requests\Clients\UpdateClientRequest;
 use App\Models\Client;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use App\Services\TenantContext;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class ClientsController extends Controller
     public function __construct(
         private ClientRepositoryInterface $clientRepository,
         private TenantContext $tenantContext,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -44,7 +46,7 @@ class ClientsController extends Controller
             'tenant_id' => $this->tenantContext->get()->id,
         ]);
 
-        return redirect()->route('clients.show', $client)->with('status', 'Client created.');
+        return redirect($this->tenantUrl->route('clients.show', ['client' => $client]))->with('status', 'Client created.');
     }
 
     public function show(Request $request, string $subdomain, Client $client): View
@@ -69,6 +71,6 @@ class ClientsController extends Controller
 
         $this->clientRepository->update($client, $request->validated());
 
-        return redirect()->route('clients.show', $client)->with('status', 'Client updated.');
+        return redirect($this->tenantUrl->route('clients.show', ['client' => $client]))->with('status', 'Client updated.');
     }
 }

@@ -11,7 +11,7 @@
     </div>
 
     <div class="sfp-card">
-        <form action="{{ route('clients.store') }}" method="POST">
+        <form action="{{ $tenantUrl->route('clients.store') }}" method="POST">
             @csrf
 
             <div class="sfp-field">
@@ -58,7 +58,7 @@
 
             <div class="sfp-form-actions">
                 <button type="submit" class="sfp-btn-primary">Save</button>
-                <a href="{{ route('clients.index') }}" class="sfp-btn-outline">Cancel</a>
+                <a href="{{ $tenantUrl->route('clients.index') }}" class="sfp-btn-outline">Cancel</a>
             </div>
         </form>
     </div>

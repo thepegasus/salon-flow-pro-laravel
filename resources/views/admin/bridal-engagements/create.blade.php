@@ -11,7 +11,7 @@
     </div>
 
     <div class="sfp-card">
-        <form action="{{ route('bridalEngagements.store') }}" method="POST">
+        <form action="{{ $tenantUrl->route('bridalEngagements.store') }}" method="POST">
             @csrf
 
             <div class="sfp-field">
@@ -108,7 +108,7 @@
 
             <div class="sfp-form-actions">
                 <button type="submit" class="sfp-btn-primary">Create engagement</button>
-                <a href="{{ route('bridalEngagements.index') }}" class="sfp-btn-outline">Cancel</a>
+                <a href="{{ $tenantUrl->route('bridalEngagements.index') }}" class="sfp-btn-outline">Cancel</a>
             </div>
         </form>
     </div>

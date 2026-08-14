@@ -21,7 +21,7 @@
                 <div style="font-size:12px;color:#66736F;margin-top:2px">{{ $walkIn->phone }}</div>
 
                 @can('appointments.edit')
-                    <form action="{{ route('walkIns.assign', $walkIn) }}" method="POST" style="display: flex; align-items: flex-end; gap: 10px; margin-top: 10px">
+                    <form action="{{ $tenantUrl->route('walkIns.assign', $walkIn) }}" method="POST" style="display: flex; align-items: flex-end; gap: 10px; margin-top: 10px">
                         @csrf
                         @method('PUT')
                         <div class="sfp-field" style="margin-bottom: 0">

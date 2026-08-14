@@ -34,13 +34,13 @@
 
         @can('appointments.edit')
             <div class="sfp-form-actions" style="margin-top: 18px">
-                <form action="{{ route('appointments.noShow', $appointment) }}" method="POST">
+                <form action="{{ $tenantUrl->route('appointments.noShow', $appointment) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <button type="submit" class="sfp-btn-link-danger">Mark no-show</button>
                 </form>
 
-                <form action="{{ route('appointments.cancel', $appointment) }}" method="POST">
+                <form action="{{ $tenantUrl->route('appointments.cancel', $appointment) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="reason" value="client_requested">

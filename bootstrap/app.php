@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureSuperAdminRequest;
 use App\Http\Middleware\EnsureTenantRequest;
+use App\Http\Middleware\EnsureUserBelongsToTenant;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ResolveTenant::class,
         ]);
 
+        $middleware->web(append: [
+            EnsureUserBelongsToTenant::class,
+        ]);
+
         $middleware->alias([
             'super_admin.only' => EnsureSuperAdminRequest::class,
             'tenant.only' => EnsureTenantRequest::class,
@@ -29,11 +34,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {
-            if ($request->getHost() === config('tenancy.main_domain')) {
-                return $request->getSchemeAndHttpHost().'/';
+            if ($request->getHost() !== config('tenancy.main_domain')) {
+                return $request->getSchemeAndHttpHost().'/login';
             }
 
-            return $request->getSchemeAndHttpHost().'/login';
+            $slugPrefix = $request->attributes->get('tenant_slug_prefix');
+
+            if ($slugPrefix) {
+                return $request->getSchemeAndHttpHost()."/{$slugPrefix}/login";
+            }
+
+            return $request->getSchemeAndHttpHost().'/';
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

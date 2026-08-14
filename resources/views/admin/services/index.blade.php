@@ -10,10 +10,10 @@
         </div>
         <div class="sfp-row">
             @can('services.view')
-                <a href="{{ route('serviceCategories.index') }}" class="sfp-btn-outline">Manage categories</a>
+                <a href="{{ $tenantUrl->route('serviceCategories.index') }}" class="sfp-btn-outline">Manage categories</a>
             @endcan
             @can('services.create')
-                <a href="{{ route('services.create') }}" class="sfp-btn-pill-dark">+ Add service</a>
+                <a href="{{ $tenantUrl->route('services.create') }}" class="sfp-btn-pill-dark">+ Add service</a>
             @endcan
         </div>
     </div>
@@ -38,12 +38,12 @@
                             @if (! $service->is_active)
                                 <span class="sfp-pill sfp-pill-neutral">Disabled</span>
                             @endif
-                            <a href="{{ route('services.show', $service) }}" style="font-size:12.5px;color:#66736F">View</a>
+                            <a href="{{ $tenantUrl->route('services.show', $service) }}" style="font-size:12.5px;color:#66736F">View</a>
                             @can('services.edit')
-                                <a href="{{ route('services.edit', $service) }}" style="font-size:12.5px;color:#1B4B8F">Edit</a>
+                                <a href="{{ $tenantUrl->route('services.edit', $service) }}" style="font-size:12.5px;color:#1B4B8F">Edit</a>
                             @endcan
                             @can('services.delete')
-                                <form action="{{ route('services.destroy', $service) }}" method="POST" style="display:inline">
+                                <form action="{{ $tenantUrl->route('services.destroy', $service) }}" method="POST" style="display:inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="sfp-btn-link-danger">Disable</button>

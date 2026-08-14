@@ -79,7 +79,7 @@
                 @endforelse
 
                 @can('billing.create')
-                    <form action="{{ route('bills.recordPayment', $bill) }}" method="POST" style="margin-top:16px">
+                    <form action="{{ $tenantUrl->route('bills.recordPayment', $bill) }}" method="POST" style="margin-top:16px">
                         @csrf
                         @method('PUT')
                         <div class="sfp-field">
@@ -121,7 +121,7 @@
                 <div class="sfp-card">
                     <h2 class="sfp-card-title">Issue refund</h2>
 
-                    <form action="{{ route('bills.refund', $bill) }}" method="POST">
+                    <form action="{{ $tenantUrl->route('bills.refund', $bill) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="sfp-field">

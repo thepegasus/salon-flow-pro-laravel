@@ -7,6 +7,7 @@ use App\Http\Requests\BridalEngagements\StoreBridalEngagementRequest;
 use App\Models\BridalEngagement;
 use App\Repositories\Contracts\BridalEngagementRepositoryInterface;
 use App\Services\BridalEngagementService;
+use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -18,6 +19,7 @@ class BridalEngagementsController extends Controller
     public function __construct(
         private BridalEngagementRepositoryInterface $bridalEngagementRepository,
         private BridalEngagementService $bridalEngagementService,
+        private TenantUrl $tenantUrl,
     ) {}
 
     public function index(Request $request): View
@@ -60,7 +62,7 @@ class BridalEngagementsController extends Controller
             return back()->withErrors(['trial_staff_profile_id' => $exception->getMessage()])->withInput();
         }
 
-        return redirect()->route('bridalEngagements.show', $engagement)->with('status', 'Bridal engagement created.');
+        return redirect($this->tenantUrl->route('bridalEngagements.show', ['bridalEngagement' => $engagement]))->with('status', 'Bridal engagement created.');
     }
 
     public function show(Request $request, string $subdomain, BridalEngagement $bridalEngagement): View

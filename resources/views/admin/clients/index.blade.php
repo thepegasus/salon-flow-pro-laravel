@@ -13,7 +13,7 @@
                 <input type="text" name="search" value="{{ $search }}" placeholder="Search name or mobile…" class="sfp-input" style="margin-bottom:0;width:280px;border-radius:999px">
             </form>
             @can('clients.create')
-                <a href="{{ route('clients.create') }}" class="sfp-btn-pill-dark">+ Add client</a>
+                <a href="{{ $tenantUrl->route('clients.create') }}" class="sfp-btn-pill-dark">+ Add client</a>
             @endcan
         </div>
     </div>
@@ -40,7 +40,7 @@
                 <span style="font-size:14px;color:#66736F">{{ $client->phone }}</span>
                 <span style="font-size:14px;color:#66736F">{{ $client->email ?? '—' }}</span>
                 <div style="text-align:right">
-                    <a href="{{ route('clients.show', $client) }}" class="sfp-btn-outline">View</a>
+                    <a href="{{ $tenantUrl->route('clients.show', $client) }}" class="sfp-btn-outline">View</a>
                 </div>
             </div>
         @empty

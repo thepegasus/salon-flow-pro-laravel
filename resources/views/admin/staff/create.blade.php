@@ -11,7 +11,7 @@
     </div>
 
     <div class="sfp-card">
-        <form action="{{ route('staff.store') }}" method="POST">
+        <form action="{{ $tenantUrl->route('staff.store') }}" method="POST">
             @csrf
 
             <div class="sfp-field">

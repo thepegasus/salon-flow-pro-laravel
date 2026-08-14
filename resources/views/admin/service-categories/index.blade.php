@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="margin-bottom:18px">
-        <a href="{{ route('services.index') }}" class="sfp-action-link">&larr; Back to services</a>
+        <a href="{{ $tenantUrl->route('services.index') }}" class="sfp-action-link">&larr; Back to services</a>
     </div>
 
     <div class="sfp-page-header">
@@ -13,7 +13,7 @@
             <p class="sfp-page-subtitle">Manage the categories services can be grouped under.</p>
         </div>
         @can('services.create')
-            <a href="{{ route('serviceCategories.create') }}" class="sfp-btn-pill-dark">+ Add category</a>
+            <a href="{{ $tenantUrl->route('serviceCategories.create') }}" class="sfp-btn-pill-dark">+ Add category</a>
         @endcan
     </div>
 
@@ -36,10 +36,10 @@
                 </span>
                 <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px">
                     @can('services.edit')
-                        <a href="{{ route('serviceCategories.edit', $category) }}" class="sfp-action-link">Edit</a>
+                        <a href="{{ $tenantUrl->route('serviceCategories.edit', $category) }}" class="sfp-action-link">Edit</a>
                     @endcan
                     @can('services.delete')
-                        <form action="{{ route('serviceCategories.destroy', $category) }}" method="POST">
+                        <form action="{{ $tenantUrl->route('serviceCategories.destroy', $category) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="sfp-btn-link-danger">Remove</button>

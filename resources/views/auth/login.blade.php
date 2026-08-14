@@ -116,7 +116,7 @@
                     <div class="login-error">{{ $errors->first() }}</div>
                 @endif
 
-                <form method="POST" action="{{ route('login.store') }}">
+                <form method="POST" action="{{ $tenantUrl->route('login.store') }}">
                     @csrf
 
                     <label style="display:block;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#788582;margin-bottom:8px">{{ __('Username') }}</label>

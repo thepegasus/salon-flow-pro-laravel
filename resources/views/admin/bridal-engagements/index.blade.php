@@ -9,7 +9,7 @@
             <p class="sfp-page-subtitle">{{ $engagements->count() }} live engagements</p>
         </div>
         @can('appointments.create')
-            <a href="{{ route('bridalEngagements.create') }}" class="sfp-btn-pill-dark">+ New engagement</a>
+            <a href="{{ $tenantUrl->route('bridalEngagements.create') }}" class="sfp-btn-pill-dark">+ New engagement</a>
         @endcan
     </div>
 
@@ -75,7 +75,7 @@
                     </div>
                     <div style="display:flex;align-items:center;gap:12px">
                         <span class="sfp-pill {{ $pillClass }}">{{ ucfirst(str_replace('_', ' ', $engagement->status)) }}</span>
-                        <a href="{{ route('bridalEngagements.show', $engagement) }}" style="font-size:12.5px;color:#1B4B8F">View</a>
+                        <a href="{{ $tenantUrl->route('bridalEngagements.show', $engagement) }}" style="font-size:12.5px;color:#1B4B8F">View</a>
                     </div>
                 </div>
             </div>

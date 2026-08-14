@@ -30,6 +30,11 @@ trait ActsAsTenant
         return 'http://mejora.salonflow.test'.$uri;
     }
 
+    protected function bySlugUrl(string $uri): string
+    {
+        return 'http://salonflow.test/'.$this->tenant->slug.$uri;
+    }
+
     protected function getFromTenant(string $uri): TestResponse
     {
         return $this->get($this->tenantUrl($uri));

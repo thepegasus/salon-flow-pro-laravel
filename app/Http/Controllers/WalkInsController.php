@@ -6,6 +6,7 @@ use App\Exceptions\StaffUnavailableException;
 use App\Http\Requests\Appointments\AssignWalkInRequest;
 use App\Http\Requests\Appointments\StoreWalkInRequest;
 use App\Models\WalkIn;
+use App\Services\TenantUrl;
 use App\Services\WalkInService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,10 @@ use Illuminate\View\View;
 
 class WalkInsController extends Controller
 {
-    public function __construct(private WalkInService $walkInService) {}
+    public function __construct(
+        private WalkInService $walkInService,
+        private TenantUrl $tenantUrl,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -30,7 +34,7 @@ class WalkInsController extends Controller
 
         $this->walkInService->join($request->validated());
 
-        return redirect()->route('walkIns.index')->with('status', 'Walk-in added to the queue.');
+        return redirect($this->tenantUrl->route('walkIns.index'))->with('status', 'Walk-in added to the queue.');
     }
 
     public function assign(AssignWalkInRequest $request, string $subdomain, WalkIn $walkIn): RedirectResponse
@@ -45,6 +49,6 @@ class WalkInsController extends Controller
             return back()->withErrors(['staff_profile_id' => $exception->getMessage()]);
         }
 
-        return redirect()->route('walkIns.index')->with('status', 'Walk-in assigned.');
+        return redirect($this->tenantUrl->route('walkIns.index'))->with('status', 'Walk-in assigned.');
     }
 }
