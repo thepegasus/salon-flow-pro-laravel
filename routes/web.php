@@ -22,6 +22,7 @@ use App\Http\Controllers\StaffsController;
 use App\Http\Controllers\StockAdjustmentsController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\TenantDashboardController;
+use App\Http\Controllers\TimeSlotsController;
 use App\Http\Controllers\WalkInsController;
 use Illuminate\Support\Facades\Route;
 
@@ -134,12 +135,17 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
         Route::middleware('permission:appointments.view')->group(function () use ($nameSuffix): void {
             Route::get('/appointments', [AppointmentsController::class, 'index'])->name("appointments.index{$nameSuffix}");
             Route::get('/walk-ins', [WalkInsController::class, 'index'])->name("walkIns.index{$nameSuffix}");
+            Route::get('/appointments/time-slots', [TimeSlotsController::class, 'index'])->name("timeSlots.index{$nameSuffix}");
         });
 
         Route::middleware('permission:appointments.create')->group(function () use ($nameSuffix): void {
             Route::get('/appointments/create', [AppointmentsController::class, 'create'])->name("appointments.create{$nameSuffix}");
             Route::post('/appointments', [AppointmentsController::class, 'store'])->name("appointments.store{$nameSuffix}");
             Route::post('/walk-ins', [WalkInsController::class, 'store'])->name("walkIns.store{$nameSuffix}");
+            Route::get('/appointments/clients/search', [AppointmentsController::class, 'searchClients'])->name("appointments.searchClients{$nameSuffix}");
+            Route::post('/appointments/clients/quick-create', [AppointmentsController::class, 'quickCreateClient'])->name("appointments.quickCreateClient{$nameSuffix}");
+            Route::get('/appointments/time-slots/create', [TimeSlotsController::class, 'create'])->name("timeSlots.create{$nameSuffix}");
+            Route::post('/appointments/time-slots', [TimeSlotsController::class, 'store'])->name("timeSlots.store{$nameSuffix}");
         });
 
         Route::middleware('permission:appointments.edit')->group(function () use ($nameSuffix): void {
@@ -147,6 +153,12 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
             Route::put('/appointments/{appointment}/cancel', [AppointmentsController::class, 'cancel'])->name("appointments.cancel{$nameSuffix}");
             Route::put('/appointments/{appointment}/no-show', [AppointmentsController::class, 'noShow'])->name("appointments.noShow{$nameSuffix}");
             Route::put('/walk-ins/{walkIn}/assign', [WalkInsController::class, 'assign'])->name("walkIns.assign{$nameSuffix}");
+            Route::get('/appointments/time-slots/{timeSlot}/edit', [TimeSlotsController::class, 'edit'])->name("timeSlots.edit{$nameSuffix}");
+            Route::put('/appointments/time-slots/{timeSlot}', [TimeSlotsController::class, 'update'])->name("timeSlots.update{$nameSuffix}");
+        });
+
+        Route::middleware('permission:appointments.delete')->group(function () use ($nameSuffix): void {
+            Route::delete('/appointments/time-slots/{timeSlot}', [TimeSlotsController::class, 'destroy'])->name("timeSlots.destroy{$nameSuffix}");
         });
 
         Route::middleware('permission:appointments.view')->group(function () use ($nameSuffix): void {

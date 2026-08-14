@@ -610,3 +610,30 @@ button.sfp-btn-link-danger {
 .sfp-action-link:hover {
     color: #1B4B8F;
 }
+
+/* ---- Appointments: client autosuggest ---- */
+
+.sfp-autosuggest-list {
+    margin-top: 6px;
+    border: 1px solid #E3EAE8;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 12px 24px -12px rgba(22, 32, 29, 0.18);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.sfp-autosuggest-item {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    cursor: pointer;
+    border-bottom: 1px solid #EDF1F0;
+}
+
+.sfp-autosuggest-item:last-child {
+    border-bottom: none;
+}
+
+.sfp-autosuggest-item:hover {
+    background: #F4F9F7;
+}

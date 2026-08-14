@@ -19,6 +19,7 @@ use App\Repositories\Contracts\StaffIncentiveRepositoryInterface;
 use App\Repositories\Contracts\StaffLeaveRequestRepositoryInterface;
 use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use App\Repositories\Contracts\TenantRepositoryInterface;
+use App\Repositories\Contracts\TimeSlotRepositoryInterface;
 use App\Repositories\Eloquent\AppointmentRepository;
 use App\Repositories\Eloquent\BillRepository;
 use App\Repositories\Eloquent\BridalEngagementRepository;
@@ -36,6 +37,7 @@ use App\Repositories\Eloquent\StaffIncentiveRepository;
 use App\Repositories\Eloquent\StaffLeaveRequestRepository;
 use App\Repositories\Eloquent\StaffProfileRepository;
 use App\Repositories\Eloquent\TenantRepository;
+use App\Repositories\Eloquent\TimeSlotRepository;
 use App\Services\Contracts\ReminderChannelInterface;
 use App\Services\LogReminderChannel;
 use App\Services\TenantContext;
@@ -70,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ExpenseCategoryRepositoryInterface::class, ExpenseCategoryRepository::class);
         $this->app->bind(CommissionRateRepositoryInterface::class, CommissionRateRepository::class);
         $this->app->bind(StaffIncentiveRepositoryInterface::class, StaffIncentiveRepository::class);
+        $this->app->bind(TimeSlotRepositoryInterface::class, TimeSlotRepository::class);
         $this->app->bind(ReminderChannelInterface::class, LogReminderChannel::class);
     }
 

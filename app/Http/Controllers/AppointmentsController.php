@@ -6,10 +6,17 @@ use App\Exceptions\StaffUnavailableException;
 use App\Http\Requests\Appointments\CancelAppointmentRequest;
 use App\Http\Requests\Appointments\RescheduleAppointmentRequest;
 use App\Http\Requests\Appointments\StoreAppointmentRequest;
+use App\Http\Requests\Clients\StoreClientRequest;
 use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
+use App\Repositories\Contracts\ClientRepositoryInterface;
+use App\Repositories\Contracts\ServiceRepositoryInterface;
+use App\Repositories\Contracts\StaffProfileRepositoryInterface;
+use App\Repositories\Contracts\TimeSlotRepositoryInterface;
 use App\Services\AppointmentService;
+use App\Services\TenantContext;
 use App\Services\TenantUrl;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -21,6 +28,11 @@ class AppointmentsController extends Controller
     public function __construct(
         private AppointmentRepositoryInterface $appointmentRepository,
         private AppointmentService $appointmentService,
+        private ClientRepositoryInterface $clientRepository,
+        private StaffProfileRepositoryInterface $staffProfileRepository,
+        private ServiceRepositoryInterface $serviceRepository,
+        private TimeSlotRepositoryInterface $timeSlotRepository,
+        private TenantContext $tenantContext,
         private TenantUrl $tenantUrl,
     ) {}
 
@@ -38,7 +50,11 @@ class AppointmentsController extends Controller
     {
         abort_unless($request->user()->can('appointments.create'), 403);
 
-        return view('admin.appointments.create');
+        return view('admin.appointments.create', [
+            'staff' => $this->staffProfileRepository->getActive(),
+            'services' => $this->serviceRepository->getActive(),
+            'timeSlots' => $this->timeSlotRepository->getActive(),
+        ]);
     }
 
     public function store(StoreAppointmentRequest $request): RedirectResponse
@@ -62,6 +78,43 @@ class AppointmentsController extends Controller
         }
 
         return redirect($this->tenantUrl->route('appointments.show', ['appointment' => $appointment]))->with('status', 'Appointment booked.');
+    }
+
+    public function searchClients(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->can('appointments.create'), 403);
+
+        $term = trim((string) $request->query('q', ''));
+
+        if ($term === '') {
+            return response()->json(['clients' => []]);
+        }
+
+        $clients = $this->clientRepository->search($term)->take(8);
+
+        return response()->json([
+            'clients' => $clients->map(fn ($client) => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'phone' => $client->phone,
+            ])->values(),
+        ]);
+    }
+
+    public function quickCreateClient(StoreClientRequest $request): JsonResponse
+    {
+        abort_unless($request->user()->can('appointments.create'), 403);
+
+        $client = $this->clientRepository->create([
+            ...$request->validated(),
+            'tenant_id' => $this->tenantContext->get()->id,
+        ]);
+
+        return response()->json([
+            'id' => $client->id,
+            'name' => $client->name,
+            'phone' => $client->phone,
+        ], 201);
     }
 
     public function show(Request $request, string $subdomain, Appointment $appointment): View
