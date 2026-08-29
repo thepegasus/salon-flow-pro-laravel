@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['tenant_id', 'bill_id', 'service_id', 'description', 'quantity', 'unit_price', 'tax_rate', 'line_total'])]
+#[Fillable(['tenant_id', 'bill_id', 'service_id', 'staff_profile_id', 'description', 'quantity', 'unit_price', 'tax_rate', 'line_total'])]
 #[ScopedBy([TenantScope::class])]
 class BillLineItem extends Model
 {
@@ -43,6 +43,12 @@ class BillLineItem extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /** @return BelongsTo<StaffProfile, $this> */
+    public function staffProfile(): BelongsTo
+    {
+        return $this->belongsTo(StaffProfile::class);
     }
 
     public function taxAmount(): string

@@ -3,6 +3,7 @@
 namespace Tests\Integration\Services;
 
 use App\Models\Service;
+use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Services\TenantContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,6 +39,37 @@ class ServiceCatalogDatabaseTest extends TestCase
         app(TenantContext::class)->set($tenantA);
 
         $this->assertSame(1, Service::count());
+    }
+
+    public function test_staff_service_pivot_maps_eligible_staff_to_a_service(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
+
+        $service->staff()->sync([$staffProfile->id]);
+
+        $this->assertDatabaseHas('staff_service', [
+            'service_id' => $service->id,
+            'staff_profile_id' => $staffProfile->id,
+        ]);
+        $this->assertTrue($staffProfile->fresh()->services->contains($service));
+    }
+
+    public function test_deleting_a_staff_profile_cascades_to_the_staff_service_pivot(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
+        $service->staff()->sync([$staffProfile->id]);
+
+        $staffProfile->forceDelete();
+
+        $this->assertDatabaseMissing('staff_service', ['staff_profile_id' => $staffProfile->id]);
     }
 
     public function test_disabling_a_service_soft_deletes_neither_service_nor_its_price_history(): void

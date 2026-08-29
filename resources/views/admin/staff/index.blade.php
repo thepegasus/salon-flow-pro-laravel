@@ -36,11 +36,27 @@
                 </div>
                 <div>{{ $member->designation?->name ?? '—' }}</div>
                 <div>{{ $member->phone }}</div>
-                <div>
-                    @if ($member->hasLogin())
-                        <span class="sfp-pill sfp-pill-blue">Login</span>
-                    @else
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    @if (! $member->hasLogin())
                         <span class="sfp-pill sfp-pill-neutral">No login</span>
+                    @elseif ($member->user->isLoginEnabled())
+                        <span class="sfp-pill sfp-pill-blue">Login</span>
+                        @can('staff.edit')
+                            <form action="{{ $tenantUrl->route('staff.login.disable', $member) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="sfp-btn-link-danger" style="font-size: 12px;">Disable</button>
+                            </form>
+                        @endcan
+                    @else
+                        <span class="sfp-pill sfp-pill-amber">Login disabled</span>
+                        @can('staff.edit')
+                            <form action="{{ $tenantUrl->route('staff.login.enable', $member) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="sfp-btn-link" style="font-size: 12px;">Enable</button>
+                            </form>
+                        @endcan
                     @endif
                 </div>
                 <div>

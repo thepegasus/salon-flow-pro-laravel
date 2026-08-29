@@ -73,6 +73,21 @@
                 @enderror
             </div>
 
+            <div class="sfp-card-title" style="margin-top: 24px;">Eligible staff</div>
+            <p style="color: #66736F; font-size: 13px; margin-top: -8px;">Select which staff members can perform this service. Only mapped staff can be assigned to it when billing.</p>
+
+            <div class="sfp-field">
+                @foreach ($staff as $staffMember)
+                    <div class="form-check">
+                        <input type="checkbox" name="staff_ids[]" value="{{ $staffMember->id }}" id="staff-{{ $staffMember->id }}" class="form-check-input" @checked(collect(old('staff_ids', $service->staff->pluck('id')))->contains($staffMember->id))>
+                        <label class="form-check-label" for="staff-{{ $staffMember->id }}">{{ $staffMember->name }}</label>
+                    </div>
+                @endforeach
+                @error('staff_ids')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
             <div class="sfp-form-actions">
                 <button type="submit" class="sfp-btn-primary">Save</button>
                 <a href="{{ $tenantUrl->route('services.show', $service) }}" class="sfp-btn-outline">Cancel</a>

@@ -39,6 +39,12 @@ class StoreServiceRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'is_active' => ['sometimes', 'boolean'],
+
+            'staff_ids' => ['sometimes', 'array'],
+            'staff_ids.*' => [
+                'integer',
+                Rule::exists('staff_profiles', 'id')->where('tenant_id', $tenantId)->whereNull('deleted_at'),
+            ],
         ];
     }
 }

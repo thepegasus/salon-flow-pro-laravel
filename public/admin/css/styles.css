@@ -370,6 +370,16 @@ button.sfp-btn-link-danger {
     padding: 0;
 }
 
+a.sfp-btn-link,
+button.sfp-btn-link {
+    border: none;
+    background: transparent;
+    color: #1B4B8F;
+    font-size: 12.5px;
+    cursor: pointer;
+    padding: 0;
+}
+
 /* ---- Cards ---- */
 
 .sfp-card {

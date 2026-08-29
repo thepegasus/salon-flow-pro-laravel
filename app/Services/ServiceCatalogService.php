@@ -31,6 +31,10 @@ class ServiceCatalogService
 
             $this->recordPriceHistory($service, $data['price'], $changedBy);
 
+            if (! empty($data['staff_ids'])) {
+                $service->staff()->sync($data['staff_ids']);
+            }
+
             return $service;
         });
     }
@@ -52,6 +56,10 @@ class ServiceCatalogService
 
             if ($priceChanged) {
                 $this->recordPriceHistory($service, $data['price'], $changedBy);
+            }
+
+            if (array_key_exists('staff_ids', $data)) {
+                $service->staff()->sync($data['staff_ids']);
             }
 
             return $service->refresh();

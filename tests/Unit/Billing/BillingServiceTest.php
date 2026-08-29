@@ -4,6 +4,8 @@ namespace Tests\Unit\Billing;
 
 use App\Models\Bill;
 use App\Models\Client;
+use App\Models\Service;
+use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\BillingService;
@@ -59,6 +61,37 @@ class BillingServiceTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         app(BillingService::class)->createManualBill($client->id, $user->id, []);
+    }
+
+    public function test_create_manual_bill_persists_staff_profile_id_on_line_item(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $user = User::factory()->for($tenant)->create();
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
+        $service->staff()->sync([$staffProfile->id]);
+
+        $bill = app(BillingService::class)->createManualBill($client->id, $user->id, [
+            ['description' => 'Haircut', 'service_id' => $service->id, 'staff_profile_id' => $staffProfile->id, 'unit_price' => 500],
+        ]);
+
+        $this->assertSame($staffProfile->id, $bill->lineItems->first()->staff_profile_id);
+    }
+
+    public function test_create_manual_bill_allows_null_staff_profile_id_for_manual_items(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $user = User::factory()->for($tenant)->create();
+
+        $bill = app(BillingService::class)->createManualBill($client->id, $user->id, [
+            ['description' => 'Retail item', 'unit_price' => 250],
+        ]);
+
+        $this->assertNull($bill->lineItems->first()->staff_profile_id);
     }
 
     public function test_record_payments_supports_split_across_methods_and_marks_paid_when_fully_covered(): void

@@ -9,6 +9,8 @@ use App\Http\Requests\Billing\StoreManualBillRequest;
 use App\Models\Appointment;
 use App\Models\Bill;
 use App\Repositories\Contracts\BillRepositoryInterface;
+use App\Repositories\Contracts\ClientRepositoryInterface;
+use App\Repositories\Contracts\ServiceRepositoryInterface;
 use App\Services\BillingService;
 use App\Services\TenantUrl;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +22,8 @@ class BillsController extends Controller
 {
     public function __construct(
         private BillRepositoryInterface $billRepository,
+        private ClientRepositoryInterface $clientRepository,
+        private ServiceRepositoryInterface $serviceRepository,
         private BillingService $billingService,
         private TenantUrl $tenantUrl,
     ) {}
@@ -32,6 +36,16 @@ class BillsController extends Controller
         $bills = $this->billRepository->getForDate($date);
 
         return view('admin.bills.index', ['bills' => $bills, 'date' => $date]);
+    }
+
+    public function create(Request $request): View
+    {
+        abort_unless($request->user()->can('billing.create'), 403);
+
+        return view('admin.bills.create', [
+            'clients' => $this->clientRepository->getAll(),
+            'services' => $this->serviceRepository->getActive(),
+        ]);
     }
 
     public function generateFromAppointment(GenerateBillFromAppointmentRequest $request, string $subdomain, Appointment $appointment): RedirectResponse
@@ -61,7 +75,7 @@ class BillsController extends Controller
     {
         abort_unless($request->user()->can('billing.view'), 403);
 
-        $bill->load(['lineItems', 'payments', 'refunds', 'client']);
+        $bill->load(['lineItems.staffProfile', 'payments', 'refunds', 'client']);
 
         return view('admin.bills.show', ['bill' => $bill]);
     }

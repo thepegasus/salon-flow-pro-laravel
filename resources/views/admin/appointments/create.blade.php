@@ -174,7 +174,7 @@
     }
 
     async function search(term) {
-        const response = await fetch('{{ url("/appointments/clients/search") }}?q=' + encodeURIComponent(term), {
+        const response = await fetch('{{ $tenantUrl->route("appointments.searchClients") }}?q=' + encodeURIComponent(term), {
             headers: { 'Accept': 'application/json' },
         });
 
@@ -212,7 +212,7 @@
         newClientSave.disabled = true;
 
         try {
-            const response = await fetch('{{ url("/appointments/clients/quick-create") }}', {
+            const response = await fetch('{{ $tenantUrl->route("appointments.quickCreateClient") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

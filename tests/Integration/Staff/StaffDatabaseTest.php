@@ -49,4 +49,17 @@ class StaffDatabaseTest extends TestCase
 
         $this->assertSoftDeleted('staff_profiles', ['id' => $staffProfile->id]);
     }
+
+    public function test_disabling_login_persists_disabled_at_without_touching_the_staff_profile(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id, 'is_active' => true]);
+
+        $staffProfile->user->update(['disabled_at' => now()]);
+
+        $this->assertDatabaseHas('users', ['id' => $staffProfile->user_id]);
+        $this->assertNotNull($staffProfile->user->fresh()->disabled_at);
+        $this->assertTrue($staffProfile->fresh()->is_active);
+    }
 }

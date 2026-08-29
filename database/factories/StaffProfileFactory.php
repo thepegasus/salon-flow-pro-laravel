@@ -20,18 +20,30 @@ class StaffProfileFactory extends Factory
      */
     public function definition(): array
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $tenant = Tenant::factory();
 
         return [
-            'tenant_id' => $tenant->id,
-            'user_id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
+            'tenant_id' => $tenant,
             'designation_id' => Designation::factory()->for($tenant),
             'phone' => fake()->phoneNumber(),
             'is_active' => true,
         ];
+    }
+
+    /** @return Factory<StaffProfile> */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (StaffProfile $staffProfile): void {
+            if ($staffProfile->user_id !== null || $staffProfile->name !== null) {
+                return;
+            }
+
+            $user = User::factory()->create(['tenant_id' => $staffProfile->tenant_id]);
+
+            $staffProfile->user_id = $user->id;
+            $staffProfile->name = $user->name;
+            $staffProfile->email = $user->email;
+        });
     }
 
     public function withoutLogin(): static

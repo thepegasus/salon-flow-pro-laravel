@@ -19,9 +19,10 @@
             </div>
 
             <div class="sfp-table-wrap" style="margin-top:8px">
-                <div class="sfp-table-head-row" style="grid-template-columns:70px 1fr 96px">
+                <div class="sfp-table-head-row" style="grid-template-columns:70px 1fr 150px 96px">
                     <span>Code</span>
                     <span>Service</span>
+                    <span>Staff</span>
                     <span style="text-align:right">Price</span>
                 </div>
                 <div id="qb-lines"></div>
@@ -94,17 +95,43 @@
         lines.forEach((line, index) => {
             const row = document.createElement('div');
             row.className = 'sfp-table-row';
-            row.style.gridTemplateColumns = '70px 1fr 96px';
+            row.style.gridTemplateColumns = '70px 1fr 150px 96px';
             row.innerHTML = `
                 <span class="sfp-mono" style="font-size:12.5px;color:#94A19D">${line.code}</span>
                 <span style="font-size:14px">${line.name}</span>
+                <span></span>
                 <span class="sfp-mono" style="text-align:right;font-size:13.5px">${money(line.price)}</span>
             `;
+
+            const staffSelect = document.createElement('select');
+            staffSelect.className = 'sfp-select qb-line-staff';
+            staffSelect.style.cssText = 'margin-bottom:0;font-size:13px;padding:4px 8px';
+            staffSelect.innerHTML = '<option value="">Loading&hellip;</option>';
+            staffSelect.addEventListener('change', () => {
+                line.staffProfileId = staffSelect.value || null;
+            });
+
+            row.children[2].replaceWith(staffSelect);
             linesBody.appendChild(row);
+
+            loadEligibleStaff(line.code, staffSelect, line.staffProfileId);
         });
 
         const total = lines.reduce((sum, l) => sum + Number(l.price), 0);
         totalEl.textContent = money(total);
+    }
+
+    async function loadEligibleStaff(code, select, selectedId) {
+        const response = await fetch('{{ url("/bills/quick/services") }}/' + encodeURIComponent(code) + '/eligible-staff', {
+            headers: { 'Accept': 'application/json' },
+        });
+
+        const data = response.ok ? await response.json() : { staff: [] };
+        const staff = data.staff || [];
+
+        select.innerHTML = '<option value="">No staff assigned</option>' + staff.map((member) =>
+            `<option value="${member.id}" ${String(member.id) === String(selectedId || '') ? 'selected' : ''}>${member.name}</option>`
+        ).join('');
     }
 
     function setCodeFeedback(message, isError) {
@@ -170,7 +197,7 @@
             return;
         }
 
-        lines.push({ code: service.code, name: service.name, price: service.price });
+        lines.push({ code: service.code, name: service.name, price: service.price, staffProfileId: null });
         renderLines();
         setCodeFeedback(service.name + ' added.', false);
         codeInput.value = '';
@@ -217,6 +244,7 @@
                 },
                 body: JSON.stringify({
                     codes: lines.map((l) => l.code),
+                    staff_profile_ids: lines.map((l) => l.staffProfileId || null),
                     client_phone: phoneInput.value.trim() || null,
                     payment_method: paymentMethod,
                 }),

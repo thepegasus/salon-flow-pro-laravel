@@ -5,6 +5,7 @@ namespace Tests\Unit\Billing;
 use App\Models\Bill;
 use App\Models\Client;
 use App\Models\Service;
+use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\QuickBillService;
@@ -102,5 +103,34 @@ class QuickBillServiceTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         app(QuickBillService::class)->createAndSettle([], $client->id, 'cash', $staff->id);
+    }
+
+    public function test_create_and_settle_persists_eligible_staff_profile_on_line_item(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
+        $service->staff()->sync([$staffProfile->id]);
+        $user = User::factory()->for($tenant)->create();
+
+        $bill = app(QuickBillService::class)->createAndSettle(['101'], $client->id, 'cash', $user->id, [$staffProfile->id]);
+
+        $this->assertSame($staffProfile->id, $bill->lineItems->first()->staff_profile_id);
+    }
+
+    public function test_create_and_settle_throws_when_staff_is_not_eligible_for_service(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $ineligibleStaffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
+        $user = User::factory()->for($tenant)->create();
+
+        $this->expectException(InvalidArgumentException::class);
+
+        app(QuickBillService::class)->createAndSettle(['101'], $client->id, 'cash', $user->id, [$ineligibleStaffProfile->id]);
     }
 }

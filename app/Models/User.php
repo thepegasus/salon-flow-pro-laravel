@@ -15,7 +15,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['tenant_id', 'name', 'username', 'email', 'password'])]
+#[Fillable(['tenant_id', 'name', 'username', 'email', 'password', 'disabled_at'])]
 #[Hidden(['password', 'remember_token'])]
 #[ScopedBy([TenantScope::class])]
 class User extends Authenticatable
@@ -33,7 +33,13 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'disabled_at' => 'datetime',
         ];
+    }
+
+    public function isLoginEnabled(): bool
+    {
+        return $this->disabled_at === null;
     }
 
     /** @return BelongsTo<Tenant, $this> */

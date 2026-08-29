@@ -18,6 +18,7 @@ use App\Http\Controllers\ServiceCategoriesController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\StaffIncentivesController;
 use App\Http\Controllers\StaffLeaveRequestsController;
+use App\Http\Controllers\StaffLoginController;
 use App\Http\Controllers\StaffsController;
 use App\Http\Controllers\StockAdjustmentsController;
 use App\Http\Controllers\SuperAdminDashboardController;
@@ -64,6 +65,8 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
             Route::put('/staff/leave-requests/{leaveRequest}', [StaffLeaveRequestsController::class, 'update'])->name("staff.leaveRequests.update{$nameSuffix}");
             Route::get('/staff/designations/{designation}/edit', [DesignationsController::class, 'edit'])->name("designations.edit{$nameSuffix}");
             Route::put('/staff/designations/{designation}', [DesignationsController::class, 'update'])->name("designations.update{$nameSuffix}");
+            Route::put('/staff/{staff}/login/disable', [StaffLoginController::class, 'disable'])->name("staff.login.disable{$nameSuffix}");
+            Route::put('/staff/{staff}/login/enable', [StaffLoginController::class, 'enable'])->name("staff.login.enable{$nameSuffix}");
         });
 
         Route::middleware('permission:staff.delete')->group(function () use ($nameSuffix): void {
@@ -203,9 +206,12 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
         Route::middleware('permission:billing.create')->group(function () use ($nameSuffix): void {
             Route::get('/bills/quick', [QuickBillController::class, 'create'])->name("bills.quick.create{$nameSuffix}");
             Route::get('/bills/quick/services/{code}', [QuickBillController::class, 'lookupService'])->name("bills.quick.lookupService{$nameSuffix}");
+            Route::get('/bills/quick/services/{code}/eligible-staff', [QuickBillController::class, 'eligibleStaff'])->name("bills.quick.eligibleStaff{$nameSuffix}");
             Route::get('/bills/quick/clients/{phone}', [QuickBillController::class, 'lookupClient'])->name("bills.quick.lookupClient{$nameSuffix}");
             Route::post('/bills/quick/settle', [QuickBillController::class, 'settle'])->name("bills.quick.settle{$nameSuffix}");
 
+            Route::get('/bills/create', [BillsController::class, 'create'])->name("bills.create{$nameSuffix}");
+            Route::get('/services/{service}/eligible-staff', [ServicesController::class, 'eligibleStaff'])->name("services.eligibleStaff{$nameSuffix}");
             Route::post('/appointments/{appointment}/bill', [BillsController::class, 'generateFromAppointment'])->name("bills.generateFromAppointment{$nameSuffix}");
             Route::post('/bills', [BillsController::class, 'storeManual'])->name("bills.storeManual{$nameSuffix}");
             Route::put('/bills/{bill}/payments', [BillsController::class, 'recordPayment'])->name("bills.recordPayment{$nameSuffix}");

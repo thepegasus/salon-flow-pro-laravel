@@ -79,6 +79,21 @@
                 <p style="color: #94A19D; font-size: 13px; margin-top: 16px;">This staff member has no login. Roles apply only to staff with system access.</p>
             @endif
 
+            <div class="sfp-card-title" style="margin-top: 24px;">Services</div>
+            <p style="color: #66736F; font-size: 13px; margin-top: -8px;">Select the services this staff member is eligible to perform. Only mapped staff can be assigned to these services when billing.</p>
+
+            <div class="sfp-field">
+                @foreach ($services as $service)
+                    <div class="form-check">
+                        <input type="checkbox" name="service_ids[]" value="{{ $service->id }}" id="service-{{ $service->id }}" class="form-check-input" @checked(collect(old('service_ids', $staff->services->pluck('id')))->contains($service->id))>
+                        <label class="form-check-label" for="service-{{ $service->id }}">{{ $service->name }}</label>
+                    </div>
+                @endforeach
+                @error('service_ids')
+                    <span class="sfp-invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
             <div class="sfp-card-title" style="margin-top: 24px;">HR record <span style="font-weight: 400; color: #94A19D; text-transform: none; letter-spacing: normal;">(optional)</span></div>
 
             <div class="sfp-field">

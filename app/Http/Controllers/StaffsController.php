@@ -6,6 +6,7 @@ use App\Http\Requests\Staff\StoreStaffRequest;
 use App\Http\Requests\Staff\UpdateStaffRequest;
 use App\Models\StaffProfile;
 use App\Repositories\Contracts\DesignationRepositoryInterface;
+use App\Repositories\Contracts\ServiceRepositoryInterface;
 use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use App\Services\StaffService;
 use App\Services\TenantUrl;
@@ -19,6 +20,7 @@ class StaffsController extends Controller
     public function __construct(
         private StaffProfileRepositoryInterface $staffProfileRepository,
         private DesignationRepositoryInterface $designationRepository,
+        private ServiceRepositoryInterface $serviceRepository,
         private StaffService $staffService,
         private TenantUrl $tenantUrl,
     ) {}
@@ -39,6 +41,7 @@ class StaffsController extends Controller
         return view('admin.staff.create', [
             'designations' => $this->designationRepository->getActive(),
             'roles' => Role::all(),
+            'services' => $this->serviceRepository->getActive(),
         ]);
     }
 
@@ -66,6 +69,7 @@ class StaffsController extends Controller
             'staff' => $staff,
             'designations' => $this->designationRepository->getActive(),
             'roles' => Role::all(),
+            'services' => $this->serviceRepository->getActive(),
         ]);
     }
 

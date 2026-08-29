@@ -19,7 +19,7 @@
                 <select name="staff_profile_id" class="sfp-select">
                     <option value="">Select staff member</option>
                     @foreach ($staff as $member)
-                        <option value="{{ $member->id }}" @selected(old('staff_profile_id') == $member->id)>{{ $member->user->name }}</option>
+                        <option value="{{ $member->id }}" @selected(old('staff_profile_id') == $member->id)>{{ $member->name }}</option>
                     @endforeach
                 </select>
                 @error('staff_profile_id')

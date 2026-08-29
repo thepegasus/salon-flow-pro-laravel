@@ -43,6 +43,24 @@ class QuickBillController extends Controller
         ]);
     }
 
+    public function eligibleStaff(Request $request, string $subdomain, string $code): JsonResponse
+    {
+        abort_unless($request->user()->can('billing.create'), 403);
+
+        $service = $this->quickBillService->findServiceByCode($code);
+
+        if (! $service) {
+            return response()->json(['staff' => []]);
+        }
+
+        return response()->json([
+            'staff' => $service->staff()->active()->get()->map(fn ($staffMember) => [
+                'id' => $staffMember->id,
+                'name' => $staffMember->name,
+            ])->values(),
+        ]);
+    }
+
     public function lookupClient(Request $request, string $subdomain, string $phone): JsonResponse
     {
         abort_unless($request->user()->can('billing.create'), 403);
@@ -83,6 +101,7 @@ class QuickBillController extends Controller
                 $clientId,
                 $data['payment_method'],
                 $request->user()->id,
+                $data['staff_profile_ids'] ?? [],
             );
         } catch (InvalidArgumentException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);

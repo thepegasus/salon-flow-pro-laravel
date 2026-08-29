@@ -39,23 +39,31 @@ class QuickBillService
      * Creates a bill from scanned service codes and settles it in full with a single payment.
      *
      * @param  array<int, string>  $codes
+     * @param  array<int, int|null>  $staffProfileIds  Eligible staff performing each code, keyed to match $codes
      */
-    public function createAndSettle(array $codes, ?int $clientId, string $paymentMethod, int $staffUserId): Bill
+    public function createAndSettle(array $codes, ?int $clientId, string $paymentMethod, int $staffUserId, array $staffProfileIds = []): Bill
     {
         if ($codes === []) {
             throw new InvalidArgumentException('At least one service code is required.');
         }
 
         $lineItems = [];
-        foreach ($codes as $code) {
+        foreach ($codes as $index => $code) {
             $service = $this->findServiceByCode($code);
 
             if (! $service) {
                 throw new InvalidArgumentException("No active service found for code \"{$code}\".");
             }
 
+            $staffProfileId = $staffProfileIds[$index] ?? null;
+
+            if ($staffProfileId && ! $service->staff()->where('staff_profiles.id', $staffProfileId)->exists()) {
+                throw new InvalidArgumentException("The selected staff member is not eligible to perform \"{$service->name}\".");
+            }
+
             $lineItems[] = [
                 'service_id' => $service->id,
+                'staff_profile_id' => $staffProfileId,
                 'description' => $service->name,
                 'quantity' => 1,
                 'unit_price' => (float) $service->price,

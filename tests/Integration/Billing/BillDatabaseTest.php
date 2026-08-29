@@ -3,6 +3,7 @@
 namespace Tests\Integration\Billing;
 
 use App\Models\Bill;
+use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Services\TenantContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -37,5 +38,25 @@ class BillDatabaseTest extends TestCase
 
         $this->assertDatabaseHas('bills', ['id' => $bill->id, 'status' => 'void']);
         $this->assertDatabaseHas('bill_payments', ['bill_id' => $bill->id]);
+    }
+
+    public function test_deleting_a_staff_profile_nulls_out_staff_profile_id_on_line_items(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
+        $bill = Bill::factory()->create(['tenant_id' => $tenant->id]);
+        $lineItem = $bill->lineItems()->create([
+            'tenant_id' => $tenant->id,
+            'staff_profile_id' => $staffProfile->id,
+            'description' => 'Haircut',
+            'unit_price' => 500,
+            'line_total' => 500,
+        ]);
+
+        $staffProfile->forceDelete();
+
+        $this->assertDatabaseHas('bill_line_items', ['id' => $lineItem->id, 'staff_profile_id' => null]);
     }
 }

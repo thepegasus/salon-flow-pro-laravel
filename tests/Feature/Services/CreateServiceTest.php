@@ -3,6 +3,7 @@
 namespace Tests\Feature\Services;
 
 use App\Models\ServiceCategory;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,6 +59,41 @@ class CreateServiceTest extends TestCase
             'price' => 299,
             'changed_by' => $owner->id,
         ]);
+    }
+
+    public function test_owner_can_map_eligible_staff_when_creating_a_service(): void
+    {
+        $owner = User::factory()->for($this->tenant)->create();
+        $owner->assignRole('Owner');
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $this->tenant->id]);
+
+        $response = $this->actingAs($owner)->postToTenant('/services', [
+            'name' => 'Haircut',
+            'price' => 499,
+            'duration_minutes' => 45,
+            'staff_ids' => [$staffProfile->id],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('staff_service', [
+            'staff_profile_id' => $staffProfile->id,
+        ]);
+    }
+
+    public function test_validation_rejects_staff_id_from_another_tenant(): void
+    {
+        $owner = User::factory()->for($this->tenant)->create();
+        $owner->assignRole('Owner');
+        $otherStaffProfile = StaffProfile::factory()->create();
+
+        $response = $this->actingAs($owner)->postToTenant('/services', [
+            'name' => 'Haircut',
+            'price' => 499,
+            'duration_minutes' => 45,
+            'staff_ids' => [$otherStaffProfile->id],
+        ]);
+
+        $response->assertSessionHasErrors('staff_ids.0');
     }
 
     public function test_validation_rejects_negative_price(): void

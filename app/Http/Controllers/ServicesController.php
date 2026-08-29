@@ -7,8 +7,10 @@ use App\Http\Requests\Services\UpdateServiceRequest;
 use App\Models\Service;
 use App\Repositories\Contracts\ServiceCategoryRepositoryInterface;
 use App\Repositories\Contracts\ServiceRepositoryInterface;
+use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use App\Services\ServiceCatalogService;
 use App\Services\TenantUrl;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,6 +20,7 @@ class ServicesController extends Controller
     public function __construct(
         private ServiceRepositoryInterface $serviceRepository,
         private ServiceCategoryRepositoryInterface $categoryRepository,
+        private StaffProfileRepositoryInterface $staffProfileRepository,
         private ServiceCatalogService $serviceCatalogService,
         private TenantUrl $tenantUrl,
     ) {}
@@ -37,7 +40,10 @@ class ServicesController extends Controller
 
         $categories = $this->categoryRepository->getActive();
 
-        return view('admin.services.create', ['categories' => $categories]);
+        return view('admin.services.create', [
+            'categories' => $categories,
+            'staff' => $this->staffProfileRepository->getActive(),
+        ]);
     }
 
     public function store(StoreServiceRequest $request): RedirectResponse
@@ -62,7 +68,11 @@ class ServicesController extends Controller
 
         $categories = $this->categoryRepository->getActive();
 
-        return view('admin.services.edit', ['service' => $service, 'categories' => $categories]);
+        return view('admin.services.edit', [
+            'service' => $service,
+            'categories' => $categories,
+            'staff' => $this->staffProfileRepository->getActive(),
+        ]);
     }
 
     public function update(UpdateServiceRequest $request, string $subdomain, Service $service): RedirectResponse
@@ -81,5 +91,19 @@ class ServicesController extends Controller
         $this->serviceCatalogService->deactivate($service);
 
         return redirect($this->tenantUrl->route('services.index'))->with('status', 'Service disabled.');
+    }
+
+    public function eligibleStaff(Request $request, string $subdomain, Service $service): JsonResponse
+    {
+        abort_unless($request->user()->can('billing.create'), 403);
+
+        $staff = $this->staffProfileRepository->getByService($service->id);
+
+        return response()->json([
+            'staff' => $staff->map(fn ($staffMember) => [
+                'id' => $staffMember->id,
+                'name' => $staffMember->name,
+            ])->values(),
+        ]);
     }
 }

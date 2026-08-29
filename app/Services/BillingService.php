@@ -16,12 +16,13 @@ class BillingService
     ) {}
 
     /**
-     * @param  array<int, array{description: string, service_id?: int|null, quantity?: int, unit_price: float, tax_rate?: float}>  $manualLineItems
+     * @param  array<int, array{description: string, service_id?: int|null, staff_profile_id?: int|null, quantity?: int, unit_price: float, tax_rate?: float}>  $manualLineItems
      */
     public function generateFromAppointment(Appointment $appointment, int $createdBy, array $manualLineItems = []): Bill
     {
         $lineItems = $appointment->services->map(fn ($service) => [
             'service_id' => $service->id,
+            'staff_profile_id' => $appointment->staff_profile_id,
             'description' => $service->name,
             'quantity' => 1,
             'unit_price' => (float) $service->pivot->price_at_booking,
@@ -32,7 +33,7 @@ class BillingService
     }
 
     /**
-     * @param  array<int, array{description: string, service_id?: int|null, quantity?: int, unit_price: float, tax_rate?: float}>  $lineItems
+     * @param  array<int, array{description: string, service_id?: int|null, staff_profile_id?: int|null, quantity?: int, unit_price: float, tax_rate?: float}>  $lineItems
      */
     public function createManualBill(int $clientId, int $createdBy, array $lineItems): Bill
     {
@@ -40,7 +41,7 @@ class BillingService
     }
 
     /**
-     * @param  array<int, array{description: string, service_id?: int|null, quantity?: int, unit_price: float, tax_rate?: float}>  $lineItems
+     * @param  array<int, array{description: string, service_id?: int|null, staff_profile_id?: int|null, quantity?: int, unit_price: float, tax_rate?: float}>  $lineItems
      */
     private function createBill(int $clientId, int $createdBy, array $lineItems, ?int $appointmentId = null): Bill
     {
@@ -68,6 +69,7 @@ class BillingService
 
                 $resolvedItems[] = [
                     'service_id' => $item['service_id'] ?? null,
+                    'staff_profile_id' => $item['staff_profile_id'] ?? null,
                     'description' => $item['description'],
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,

@@ -27,6 +27,12 @@ class LoginController extends Controller
             return back()->withErrors(['username' => 'Invalid credentials.'])->onlyInput('username');
         }
 
+        if (! Auth::user()->isLoginEnabled()) {
+            Auth::logout();
+
+            return back()->withErrors(['username' => 'Invalid credentials.'])->onlyInput('username');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended($this->pathFor($request, 'dashboard'));

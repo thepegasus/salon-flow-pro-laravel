@@ -34,7 +34,12 @@
                     <div style="display:grid;grid-template-columns:1fr 78px 96px 96px;padding:16px 20px;border-bottom:1px solid #EDF1F0;align-items:center">
                         <div>
                             <div style="font-size:14.5px">{{ $item->description }}</div>
-                            <div style="font-size:11.5px;color:#94A19D;margin-top:3px">{{ $item->tax_rate }}% tax</div>
+                            <div style="font-size:11.5px;color:#94A19D;margin-top:3px">
+                                {{ $item->tax_rate }}% tax
+                                @if ($item->staffProfile)
+                                    &middot; {{ $item->staffProfile->name }}
+                                @endif
+                            </div>
                         </div>
                         <span class="sfp-mono" style="text-align:center;font-size:13px">{{ $item->quantity }}</span>
                         <span class="sfp-mono" style="text-align:right;font-size:13px;color:#66736F">&#8377;{{ number_format($item->unit_price, 2) }}</span>

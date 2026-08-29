@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use InvalidArgumentException;
 
 class StaffService
 {
@@ -79,5 +80,31 @@ class StaffService
     public function deactivate(StaffProfile $staffProfile): StaffProfile
     {
         return $this->staffProfileRepository->update($staffProfile, ['is_active' => false]);
+    }
+
+    public function disableLogin(StaffProfile $staffProfile): StaffProfile
+    {
+        if (! $staffProfile->hasLogin()) {
+            throw new InvalidArgumentException('This staff member has no login to disable.');
+        }
+
+        return DB::transaction(function () use ($staffProfile): StaffProfile {
+            $staffProfile->user->update(['disabled_at' => now()]);
+
+            DB::table('sessions')->where('user_id', $staffProfile->user_id)->delete();
+
+            return $staffProfile->refresh();
+        });
+    }
+
+    public function enableLogin(StaffProfile $staffProfile): StaffProfile
+    {
+        if (! $staffProfile->hasLogin()) {
+            throw new InvalidArgumentException('This staff member has no login to enable.');
+        }
+
+        $staffProfile->user->update(['disabled_at' => null]);
+
+        return $staffProfile->refresh();
     }
 }
