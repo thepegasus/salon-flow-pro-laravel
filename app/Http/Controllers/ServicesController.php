@@ -95,7 +95,7 @@ class ServicesController extends Controller
 
     public function eligibleStaff(Request $request, string $subdomain, Service $service): JsonResponse
     {
-        abort_unless($request->user()->can('billing.create'), 403);
+        abort_unless($request->user()->canAny(['billing.create', 'appointments.create']), 403);
 
         $staff = $this->staffProfileRepository->getByService($service->id);
 
@@ -103,6 +103,28 @@ class ServicesController extends Controller
             'staff' => $staff->map(fn ($staffMember) => [
                 'id' => $staffMember->id,
                 'name' => $staffMember->name,
+            ])->values(),
+        ]);
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->can('billing.create'), 403);
+
+        $term = (string) $request->query('q', '');
+
+        if ($term === '') {
+            return response()->json(['services' => []]);
+        }
+
+        $services = $this->serviceRepository->search($term);
+
+        return response()->json([
+            'services' => $services->map(fn (Service $service) => [
+                'id' => $service->id,
+                'code' => $service->code,
+                'name' => $service->name,
+                'price' => (float) $service->price,
             ])->values(),
         ]);
     }

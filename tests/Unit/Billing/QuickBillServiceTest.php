@@ -18,37 +18,20 @@ class QuickBillServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_find_service_by_code_returns_active_service(): void
+    public function test_create_and_settle_builds_bill_from_resolved_items_and_marks_it_paid(): void
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
-        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
-
-        $found = app(QuickBillService::class)->findServiceByCode('101');
-
-        $this->assertTrue($found->is($service));
-    }
-
-    public function test_find_service_by_code_ignores_inactive_services(): void
-    {
-        $tenant = Tenant::factory()->create();
-        app(TenantContext::class)->set($tenant);
-        Service::factory()->inactive()->create(['tenant_id' => $tenant->id, 'code' => '101']);
-
-        $found = app(QuickBillService::class)->findServiceByCode('101');
-
-        $this->assertNull($found);
-    }
-
-    public function test_create_and_settle_builds_bill_from_codes_and_marks_it_paid(): void
-    {
-        $tenant = Tenant::factory()->create();
-        app(TenantContext::class)->set($tenant);
-        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101', 'price' => 500]);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'price' => 500]);
         $client = Client::factory()->create(['tenant_id' => $tenant->id]);
         $staff = User::factory()->for($tenant)->create();
 
-        $bill = app(QuickBillService::class)->createAndSettle(['101'], $client->id, 'cash', $staff->id);
+        $bill = app(QuickBillService::class)->createAndSettle(
+            [['service_id' => $service->id, 'quantity' => 1]],
+            $client->id,
+            'cash',
+            $staff->id,
+        );
 
         $this->assertSame(Bill::StatusPaid, $bill->status);
         $this->assertSame($client->id, $bill->client_id);
@@ -60,10 +43,15 @@ class QuickBillServiceTest extends TestCase
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
-        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
         $staff = User::factory()->for($tenant)->create();
 
-        $bill = app(QuickBillService::class)->createAndSettle(['101'], null, 'cash', $staff->id);
+        $bill = app(QuickBillService::class)->createAndSettle(
+            [['service_id' => $service->id]],
+            null,
+            'cash',
+            $staff->id,
+        );
 
         $this->assertSame(QuickBillService::WalkInClientName, $bill->client->name);
     }
@@ -72,16 +60,52 @@ class QuickBillServiceTest extends TestCase
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
-        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
         $staff = User::factory()->for($tenant)->create();
 
-        $first = app(QuickBillService::class)->createAndSettle(['101'], null, 'cash', $staff->id);
-        $second = app(QuickBillService::class)->createAndSettle(['101'], null, 'upi', $staff->id);
+        $first = app(QuickBillService::class)->createAndSettle([['service_id' => $service->id]], null, 'cash', $staff->id);
+        $second = app(QuickBillService::class)->createAndSettle([['service_id' => $service->id]], null, 'upi', $staff->id);
 
         $this->assertSame($first->client_id, $second->client_id);
     }
 
-    public function test_create_and_settle_throws_for_unknown_code(): void
+    public function test_create_and_settle_supports_quantity_greater_than_one(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'price' => 200]);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $staff = User::factory()->for($tenant)->create();
+
+        $bill = app(QuickBillService::class)->createAndSettle(
+            [['service_id' => $service->id, 'quantity' => 3]],
+            $client->id,
+            'cash',
+            $staff->id,
+        );
+
+        $this->assertSame(3, $bill->lineItems->first()->quantity);
+    }
+
+    public function test_create_and_settle_supports_manual_items_without_a_service(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $staff = User::factory()->for($tenant)->create();
+
+        $bill = app(QuickBillService::class)->createAndSettle(
+            [['description' => 'Retail shampoo', 'unit_price' => 350]],
+            $client->id,
+            'cash',
+            $staff->id,
+        );
+
+        $this->assertSame('Retail shampoo', $bill->lineItems->first()->description);
+        $this->assertNull($bill->lineItems->first()->service_id);
+    }
+
+    public function test_create_and_settle_throws_for_unknown_service(): void
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
@@ -90,10 +114,10 @@ class QuickBillServiceTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
-        app(QuickBillService::class)->createAndSettle(['999'], $client->id, 'cash', $staff->id);
+        app(QuickBillService::class)->createAndSettle([['service_id' => 999999]], $client->id, 'cash', $staff->id);
     }
 
-    public function test_create_and_settle_throws_for_empty_codes(): void
+    public function test_create_and_settle_throws_for_empty_items(): void
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
@@ -109,13 +133,18 @@ class QuickBillServiceTest extends TestCase
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
-        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
         $client = Client::factory()->create(['tenant_id' => $tenant->id]);
         $staffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
         $service->staff()->sync([$staffProfile->id]);
         $user = User::factory()->for($tenant)->create();
 
-        $bill = app(QuickBillService::class)->createAndSettle(['101'], $client->id, 'cash', $user->id, [$staffProfile->id]);
+        $bill = app(QuickBillService::class)->createAndSettle(
+            [['service_id' => $service->id, 'staff_profile_id' => $staffProfile->id]],
+            $client->id,
+            'cash',
+            $user->id,
+        );
 
         $this->assertSame($staffProfile->id, $bill->lineItems->first()->staff_profile_id);
     }
@@ -124,13 +153,18 @@ class QuickBillServiceTest extends TestCase
     {
         $tenant = Tenant::factory()->create();
         app(TenantContext::class)->set($tenant);
-        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'code' => '101']);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id]);
         $client = Client::factory()->create(['tenant_id' => $tenant->id]);
         $ineligibleStaffProfile = StaffProfile::factory()->create(['tenant_id' => $tenant->id]);
         $user = User::factory()->for($tenant)->create();
 
         $this->expectException(InvalidArgumentException::class);
 
-        app(QuickBillService::class)->createAndSettle(['101'], $client->id, 'cash', $user->id, [$ineligibleStaffProfile->id]);
+        app(QuickBillService::class)->createAndSettle(
+            [['service_id' => $service->id, 'staff_profile_id' => $ineligibleStaffProfile->id]],
+            $client->id,
+            'cash',
+            $user->id,
+        );
     }
 }

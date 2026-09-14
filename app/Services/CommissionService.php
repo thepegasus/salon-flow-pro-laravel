@@ -77,7 +77,7 @@ class CommissionService
     {
         $paidBills = Bill::query()
             ->where('status', Bill::StatusPaid)
-            ->whereHas('appointment', function ($query) use ($staff): void {
+            ->whereHas('lineItems', function ($query) use ($staff): void {
                 $query->where('staff_profile_id', $staff->id);
             })
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
@@ -88,7 +88,7 @@ class CommissionService
         $lineItemCount = 0;
 
         foreach ($paidBills as $bill) {
-            foreach ($bill->lineItems as $lineItem) {
+            foreach ($bill->lineItems->where('staff_profile_id', $staff->id) as $lineItem) {
                 $categoryId = $lineItem->service?->category_id;
                 $ratePercent = $this->resolveRateFor($staff, $categoryId, Carbon::parse($bill->created_at));
 

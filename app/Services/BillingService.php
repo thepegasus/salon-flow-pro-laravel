@@ -22,7 +22,7 @@ class BillingService
     {
         $lineItems = $appointment->services->map(fn ($service) => [
             'service_id' => $service->id,
-            'staff_profile_id' => $appointment->staff_profile_id,
+            'staff_profile_id' => $service->pivot->staff_profile_id,
             'description' => $service->name,
             'quantity' => 1,
             'unit_price' => (float) $service->pivot->price_at_booking,

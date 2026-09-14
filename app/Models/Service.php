@@ -71,4 +71,13 @@ class Service extends Model
     {
         return $query->where('code', $code);
     }
+
+    /** @param Builder<Service> $query */
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function (Builder $query) use ($term): void {
+            $query->where('name', 'like', "%{$term}%")
+                ->orWhere('code', $term);
+        });
+    }
 }

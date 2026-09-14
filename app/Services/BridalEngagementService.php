@@ -50,7 +50,9 @@ class BridalEngagementService
             ]);
 
             $trialAppointment = $this->appointmentService->book(
-                $clientId, $trialStaffProfileId, $trialStartAt, $trialLineItems,
+                $clientId,
+                $trialStartAt,
+                $this->assignStaffToLineItems($trialLineItems, $trialStaffProfileId),
             );
             $trialAppointment->update([
                 'bridal_engagement_id' => $engagement->id,
@@ -58,7 +60,9 @@ class BridalEngagementService
             ]);
 
             $eventAppointment = $this->appointmentService->book(
-                $clientId, $eventStaffProfileId, $eventStartAt, $eventLineItems,
+                $clientId,
+                $eventStartAt,
+                $this->assignStaffToLineItems($eventLineItems, $eventStaffProfileId),
             );
             $eventAppointment->update([
                 'bridal_engagement_id' => $engagement->id,
@@ -87,5 +91,17 @@ class BridalEngagementService
         $engagement->update(['status' => BridalEngagement::StatusCompleted]);
 
         return $engagement->refresh();
+    }
+
+    /**
+     * @param  array<int, array{service_id: int}>  $lineItems
+     * @return array<int, array{service_id: int, staff_profile_id: int}>
+     */
+    private function assignStaffToLineItems(array $lineItems, int $staffProfileId): array
+    {
+        return array_map(
+            fn (array $item) => ['service_id' => $item['service_id'], 'staff_profile_id' => $staffProfileId],
+            $lineItems,
+        );
     }
 }

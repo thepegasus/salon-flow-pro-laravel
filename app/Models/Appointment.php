@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
-    'tenant_id', 'client_id', 'staff_profile_id', 'start_at', 'end_at', 'status', 'notes', 'cancellation_reason',
+    'tenant_id', 'client_id', 'start_at', 'end_at', 'status', 'notes', 'cancellation_reason',
     'is_on_location', 'venue_address', 'bridal_engagement_id', 'engagement_role',
 ])]
 #[ScopedBy([TenantScope::class])]
@@ -56,17 +56,20 @@ class Appointment extends Model
         return $this->belongsTo(Client::class);
     }
 
-    /** @return BelongsTo<StaffProfile, $this> */
-    public function staffProfile(): BelongsTo
-    {
-        return $this->belongsTo(StaffProfile::class);
-    }
-
     /** @return BelongsToMany<Service, $this> */
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'appointment_service')
-            ->withPivot(['price_at_booking', 'duration_minutes_at_booking']);
+            ->withPivot(['staff_profile_id', 'price_at_booking', 'duration_minutes_at_booking', 'start_at', 'end_at'])
+            ->withTimestamps();
+    }
+
+    /** @return BelongsToMany<StaffProfile, $this> */
+    public function staffProfiles(): BelongsToMany
+    {
+        return $this->belongsToMany(StaffProfile::class, 'appointment_service')
+            ->withPivot(['service_id'])
+            ->distinct();
     }
 
     /** @return HasMany<AppointmentStatusHistory, $this> */

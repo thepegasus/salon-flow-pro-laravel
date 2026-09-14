@@ -50,10 +50,10 @@ class DashboardService
     {
         $row = Bill::whereDate('bills.created_at', $day)
             ->where('bills.status', '!=', Bill::StatusVoid)
-            ->join('appointments', 'appointments.id', '=', 'bills.appointment_id')
-            ->join('staff_profiles', 'staff_profiles.id', '=', 'appointments.staff_profile_id')
+            ->join('bill_line_items', 'bill_line_items.bill_id', '=', 'bills.id')
+            ->join('staff_profiles', 'staff_profiles.id', '=', 'bill_line_items.staff_profile_id')
             ->join('users', 'users.id', '=', 'staff_profiles.user_id')
-            ->selectRaw('users.name as staff_name, sum(bills.total) as revenue')
+            ->selectRaw('users.name as staff_name, sum(bill_line_items.line_total) as revenue')
             ->groupBy('users.name')
             ->orderByDesc('revenue')
             ->first();

@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Appointment;
 use App\Models\Client;
-use App\Models\StaffProfile;
+use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,14 +19,13 @@ class AppointmentFactory extends Factory
      */
     public function definition(): array
     {
-        $staffProfile = StaffProfile::factory()->create();
-        $client = Client::factory()->create(['tenant_id' => $staffProfile->tenant_id]);
+        $tenant = Tenant::factory()->create();
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
         $start = now()->addDay()->setTime(10, 0);
 
         return [
-            'tenant_id' => $staffProfile->tenant_id,
+            'tenant_id' => $tenant->id,
             'client_id' => $client->id,
-            'staff_profile_id' => $staffProfile->id,
             'start_at' => $start,
             'end_at' => $start->copy()->addMinutes(45),
             'status' => Appointment::StatusBooked,

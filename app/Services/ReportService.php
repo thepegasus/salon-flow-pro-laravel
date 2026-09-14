@@ -19,7 +19,7 @@ class ReportService
         $paidBills = Bill::query()
             ->where('status', '!=', Bill::StatusVoid)
             ->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
-            ->with(['lineItems.service', 'payments', 'appointment.staffProfile'])
+            ->with(['lineItems.service', 'lineItems.staffProfile', 'payments'])
             ->get();
 
         return [
@@ -116,18 +116,20 @@ class ReportService
         $totals = [];
 
         foreach ($bills as $bill) {
-            $staffName = $bill->appointment?->staffProfile?->name;
+            foreach ($bill->lineItems as $lineItem) {
+                $staffName = $lineItem->staffProfile?->name;
 
-            if (! $staffName) {
-                continue;
+                if (! $staffName) {
+                    continue;
+                }
+
+                if (! isset($totals[$staffName])) {
+                    $totals[$staffName] = ['services' => 0, 'revenue' => '0.00'];
+                }
+
+                $totals[$staffName]['services']++;
+                $totals[$staffName]['revenue'] = bcadd($totals[$staffName]['revenue'], (string) $lineItem->line_total, 2);
             }
-
-            if (! isset($totals[$staffName])) {
-                $totals[$staffName] = ['services' => 0, 'revenue' => '0.00'];
-            }
-
-            $totals[$staffName]['services'] += $bill->lineItems->count();
-            $totals[$staffName]['revenue'] = bcadd($totals[$staffName]['revenue'], (string) $bill->total, 2);
         }
 
         uasort($totals, fn (array $a, array $b) => bccomp($b['revenue'], $a['revenue'], 2));

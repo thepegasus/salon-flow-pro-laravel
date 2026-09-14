@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Commission;
 
-use App\Models\Appointment;
 use App\Models\Bill;
 use App\Models\BillLineItem;
 use App\Models\CommissionRate;
@@ -208,29 +207,27 @@ class CommissionServiceTest extends TestCase
             'effective_from' => '2026-01-01',
         ]);
 
-        $paidAppointment = Appointment::factory()->create(['tenant_id' => $tenant->id, 'staff_profile_id' => $staff->id]);
         $paidBill = Bill::factory()->create([
             'tenant_id' => $tenant->id,
-            'appointment_id' => $paidAppointment->id,
             'status' => Bill::StatusPaid,
             'created_at' => '2026-06-10',
         ]);
         BillLineItem::factory()->create([
             'tenant_id' => $tenant->id,
             'bill_id' => $paidBill->id,
+            'staff_profile_id' => $staff->id,
             'line_total' => 1000,
         ]);
 
-        $unpaidAppointment = Appointment::factory()->create(['tenant_id' => $tenant->id, 'staff_profile_id' => $staff->id]);
         $unpaidBill = Bill::factory()->create([
             'tenant_id' => $tenant->id,
-            'appointment_id' => $unpaidAppointment->id,
             'status' => Bill::StatusUnpaid,
             'created_at' => '2026-06-11',
         ]);
         BillLineItem::factory()->create([
             'tenant_id' => $tenant->id,
             'bill_id' => $unpaidBill->id,
+            'staff_profile_id' => $staff->id,
             'line_total' => 5000,
         ]);
 

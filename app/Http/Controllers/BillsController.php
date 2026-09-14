@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Billing\GenerateBillFromAppointmentRequest;
 use App\Http\Requests\Billing\RecordPaymentRequest;
 use App\Http\Requests\Billing\RefundBillRequest;
+use App\Http\Requests\Billing\SettleQuickBillRequest;
 use App\Http\Requests\Billing\StoreManualBillRequest;
 use App\Models\Appointment;
 use App\Models\Bill;
 use App\Repositories\Contracts\BillRepositoryInterface;
-use App\Repositories\Contracts\ClientRepositoryInterface;
-use App\Repositories\Contracts\ServiceRepositoryInterface;
 use App\Services\BillingService;
+use App\Services\QuickBillService;
 use App\Services\TenantUrl;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,9 +23,8 @@ class BillsController extends Controller
 {
     public function __construct(
         private BillRepositoryInterface $billRepository,
-        private ClientRepositoryInterface $clientRepository,
-        private ServiceRepositoryInterface $serviceRepository,
         private BillingService $billingService,
+        private QuickBillService $quickBillService,
         private TenantUrl $tenantUrl,
     ) {}
 
@@ -42,10 +42,7 @@ class BillsController extends Controller
     {
         abort_unless($request->user()->can('billing.create'), 403);
 
-        return view('admin.bills.create', [
-            'clients' => $this->clientRepository->getAll(),
-            'services' => $this->serviceRepository->getActive(),
-        ]);
+        return view('admin.bills.create');
     }
 
     public function generateFromAppointment(GenerateBillFromAppointmentRequest $request, string $subdomain, Appointment $appointment): RedirectResponse
@@ -69,6 +66,31 @@ class BillsController extends Controller
         $bill = $this->billingService->createManualBill($data['client_id'], $request->user()->id, $data['items']);
 
         return redirect($this->tenantUrl->route('bills.show', ['bill' => $bill]))->with('status', 'Bill created.');
+    }
+
+    public function settle(SettleQuickBillRequest $request): JsonResponse
+    {
+        abort_unless($request->user()->can('billing.create'), 403);
+
+        $data = $request->validated();
+
+        try {
+            $bill = $this->quickBillService->createAndSettle(
+                $data['items'],
+                $data['client_id'] ?? null,
+                $data['payment_method'],
+                $request->user()->id,
+            );
+        } catch (InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'bill_id' => $bill->id,
+            'bill_number' => $bill->bill_number,
+            'total' => (float) $bill->total,
+            'redirect' => $this->tenantUrl->route('bills.show', ['bill' => $bill]),
+        ]);
     }
 
     public function show(Request $request, string $subdomain, Bill $bill): View

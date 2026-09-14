@@ -3,6 +3,8 @@
 namespace Tests\Unit\Appointments;
 
 use App\Models\Appointment;
+use App\Models\Client;
+use App\Models\Service;
 use App\Models\StaffProfile;
 use App\Models\StaffShift;
 use App\Models\Tenant;
@@ -113,9 +115,18 @@ class StaffAvailabilityServiceTest extends TestCase
             'is_working' => true,
         ]);
 
-        Appointment::factory()->create([
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'duration_minutes' => 60]);
+        $appointment = Appointment::factory()->create([
             'tenant_id' => $tenant->id,
+            'client_id' => $client->id,
+            'start_at' => $monday,
+            'end_at' => $monday->copy()->addHour(),
+        ]);
+        $appointment->services()->attach($service, [
             'staff_profile_id' => $staffProfile->id,
+            'price_at_booking' => $service->price,
+            'duration_minutes_at_booking' => $service->duration_minutes,
             'start_at' => $monday,
             'end_at' => $monday->copy()->addHour(),
         ]);

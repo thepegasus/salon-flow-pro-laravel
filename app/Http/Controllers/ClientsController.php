@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use App\Services\TenantContext;
 use App\Services\TenantUrl;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -47,6 +48,27 @@ class ClientsController extends Controller
         ]);
 
         return redirect($this->tenantUrl->route('clients.show', ['client' => $client]))->with('status', 'Client created.');
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->can('billing.create'), 403);
+
+        $term = (string) $request->query('q', '');
+
+        if ($term === '') {
+            return response()->json(['clients' => []]);
+        }
+
+        $clients = $this->clientRepository->search($term)->take(10);
+
+        return response()->json([
+            'clients' => $clients->map(fn (Client $client) => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'phone' => $client->phone,
+            ])->values(),
+        ]);
     }
 
     public function show(Request $request, string $subdomain, Client $client): View

@@ -15,7 +15,7 @@
 
     <div class="sfp-page-header">
         <div>
-            <h1 class="sfp-page-title">{{ $appointment->client->name }} with {{ $appointment->staffProfile->name }}</h1>
+            <h1 class="sfp-page-title">{{ $appointment->client->name }} with {{ $appointment->staffProfiles->pluck('name')->join(', ') }}</h1>
             <div class="sfp-page-subtitle sfp-mono">{{ $appointment->start_at->format('d M Y, H:i') }} &ndash; {{ $appointment->end_at->format('H:i') }}</div>
         </div>
         <span class="sfp-pill {{ $statusPillClasses[$appointment->status] ?? 'sfp-pill-neutral' }}">
@@ -26,7 +26,19 @@
     <div class="sfp-card">
         <div class="sfp-card-title">Details</div>
 
-        <p><strong>Services:</strong> {{ $appointment->services->pluck('name')->join(', ') }}</p>
+        <p><strong>Services:</strong></p>
+        <div style="display:grid;gap:8px;margin-bottom:12px">
+            @foreach ($appointment->services as $service)
+                @php $staffMember = $appointment->staffProfiles->firstWhere('id', $service->pivot->staff_profile_id); @endphp
+                <div style="font-size:13.5px">
+                    {{ $service->name }}
+                    <span class="sfp-mono" style="color:#94A19D;font-size:12.5px">
+                        &mdash; {{ \Illuminate\Support\Carbon::parse($service->pivot->start_at)->format('H:i') }}&ndash;{{ \Illuminate\Support\Carbon::parse($service->pivot->end_at)->format('H:i') }}
+                        &middot; {{ $staffMember->name ?? 'Unassigned' }}
+                    </span>
+                </div>
+            @endforeach
+        </div>
 
         @if ($appointment->notes)
             <p><strong>Notes:</strong> {{ $appointment->notes }}</p>

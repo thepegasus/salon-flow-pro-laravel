@@ -4,6 +4,7 @@ namespace Tests\Feature\Billing;
 
 use App\Models\Appointment;
 use App\Models\Service;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,10 +29,14 @@ class GenerateBillFromAppointmentTest extends TestCase
         $frontDesk->assignRole('FrontDesk');
 
         $appointment = Appointment::factory()->create(['tenant_id' => $this->tenant->id, 'status' => 'completed']);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $this->tenant->id]);
         $service = Service::factory()->create(['tenant_id' => $this->tenant->id, 'price' => 500]);
         $appointment->services()->attach($service, [
+            'staff_profile_id' => $staffProfile->id,
             'price_at_booking' => 500,
             'duration_minutes_at_booking' => 45,
+            'start_at' => $appointment->start_at,
+            'end_at' => $appointment->end_at,
         ]);
 
         $response = $this->actingAs($frontDesk)->postToTenant("/appointments/{$appointment->id}/bill", []);
@@ -47,10 +52,14 @@ class GenerateBillFromAppointmentTest extends TestCase
         $frontDesk->assignRole('FrontDesk');
 
         $appointment = Appointment::factory()->create(['tenant_id' => $this->tenant->id, 'status' => 'completed']);
+        $staffProfile = StaffProfile::factory()->create(['tenant_id' => $this->tenant->id]);
         $service = Service::factory()->create(['tenant_id' => $this->tenant->id, 'price' => 500]);
         $appointment->services()->attach($service, [
+            'staff_profile_id' => $staffProfile->id,
             'price_at_booking' => 500,
             'duration_minutes_at_booking' => 45,
+            'start_at' => $appointment->start_at,
+            'end_at' => $appointment->end_at,
         ]);
 
         $response = $this->actingAs($frontDesk)->postToTenant("/appointments/{$appointment->id}/bill", [

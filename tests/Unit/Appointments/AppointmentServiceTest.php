@@ -48,9 +48,8 @@ class AppointmentServiceTest extends TestCase
 
         $appointment = app(AppointmentService::class)->book(
             $client->id,
-            $staffProfile->id,
             $start,
-            [['service_id' => $service->id]],
+            [['service_id' => $service->id, 'staff_profile_id' => $staffProfile->id]],
         );
 
         $this->assertSame(45.0, $start->diffInMinutes($appointment->end_at));
@@ -70,14 +69,45 @@ class AppointmentServiceTest extends TestCase
 
         $appointment = app(AppointmentService::class)->book(
             $client->id,
-            $staffProfile->id,
             $start,
-            [['service_id' => $haircut->id], ['service_id' => $beardTrim->id]],
+            [
+                ['service_id' => $haircut->id, 'staff_profile_id' => $staffProfile->id],
+                ['service_id' => $beardTrim->id, 'staff_profile_id' => $staffProfile->id],
+            ],
         );
 
         $this->assertSame(45.0, $start->diffInMinutes($appointment->end_at));
         $this->assertSame(2, $appointment->services->count());
         $this->assertTrue($appointment->services->pluck('id')->contains($beardTrim->id));
+    }
+
+    public function test_book_schedules_multiple_staff_for_different_services(): void
+    {
+        $tenant = Tenant::factory()->create();
+        app(TenantContext::class)->set($tenant);
+
+        $start = now()->next(1)->setTime(10, 0);
+        $staffA = $this->setUpWorkingStaff($tenant, $start);
+        $staffB = $this->setUpWorkingStaff($tenant, $start);
+        $client = Client::factory()->create(['tenant_id' => $tenant->id]);
+        $haircut = Service::factory()->create(['tenant_id' => $tenant->id, 'price' => 500, 'duration_minutes' => 30]);
+        $facial = Service::factory()->create(['tenant_id' => $tenant->id, 'price' => 800, 'duration_minutes' => 40]);
+
+        $appointment = app(AppointmentService::class)->book(
+            $client->id,
+            $start,
+            [
+                ['service_id' => $haircut->id, 'staff_profile_id' => $staffA->id],
+                ['service_id' => $facial->id, 'staff_profile_id' => $staffB->id],
+            ],
+        );
+
+        $haircutPivot = $appointment->services->firstWhere('id', $haircut->id)->pivot;
+        $facialPivot = $appointment->services->firstWhere('id', $facial->id)->pivot;
+
+        $this->assertSame($staffA->id, $haircutPivot->staff_profile_id);
+        $this->assertSame($staffB->id, $facialPivot->staff_profile_id);
+        $this->assertSame(70.0, $start->diffInMinutes($appointment->end_at));
     }
 
     public function test_book_throws_when_staff_is_unavailable(): void
@@ -92,7 +122,7 @@ class AppointmentServiceTest extends TestCase
 
         $this->expectException(StaffUnavailableException::class);
 
-        app(AppointmentService::class)->book($client->id, $staffProfile->id, $start, [['service_id' => $service->id]]);
+        app(AppointmentService::class)->book($client->id, $start, [['service_id' => $service->id, 'staff_profile_id' => $staffProfile->id]]);
     }
 
     public function test_cancel_records_reason_and_cancels_pending_reminders(): void
@@ -106,7 +136,7 @@ class AppointmentServiceTest extends TestCase
         $service = Service::factory()->create(['tenant_id' => $tenant->id]);
         $user = User::factory()->for($tenant)->create();
 
-        $appointment = app(AppointmentService::class)->book($client->id, $staffProfile->id, $start, [['service_id' => $service->id]]);
+        $appointment = app(AppointmentService::class)->book($client->id, $start, [['service_id' => $service->id, 'staff_profile_id' => $staffProfile->id]]);
 
         app(AppointmentService::class)->cancel($appointment, 'client_requested', $user->id);
 

@@ -13,8 +13,7 @@
                 <input type="date" name="date" value="{{ $date }}" class="sfp-input" style="margin-bottom:0;max-width:200px" onchange="this.form.submit()">
             </form>
             @can('billing.create')
-                <a href="{{ $tenantUrl->route('bills.create') }}" class="sfp-btn-outline">New bill</a>
-                <a href="{{ $tenantUrl->route('bills.quick.create') }}" class="sfp-btn-primary">Quick bill (keyboard)</a>
+                <a href="{{ $tenantUrl->route('bills.create') }}" class="sfp-btn-primary">New bill</a>
             @endcan
         </div>
     </div>

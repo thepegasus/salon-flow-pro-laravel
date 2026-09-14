@@ -6,6 +6,7 @@ use App\Exceptions\StaffUnavailableException;
 use App\Http\Requests\Appointments\AssignWalkInRequest;
 use App\Http\Requests\Appointments\StoreWalkInRequest;
 use App\Models\WalkIn;
+use App\Repositories\Contracts\ServiceRepositoryInterface;
 use App\Services\TenantUrl;
 use App\Services\WalkInService;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ class WalkInsController extends Controller
 {
     public function __construct(
         private WalkInService $walkInService,
+        private ServiceRepositoryInterface $serviceRepository,
         private TenantUrl $tenantUrl,
     ) {}
 
@@ -25,7 +27,10 @@ class WalkInsController extends Controller
 
         $walkIns = WalkIn::waiting()->get();
 
-        return view('admin.walk-ins.index', ['walkIns' => $walkIns]);
+        return view('admin.walk-ins.index', [
+            'walkIns' => $walkIns,
+            'services' => $this->serviceRepository->getActive(),
+        ]);
     }
 
     public function store(StoreWalkInRequest $request): RedirectResponse

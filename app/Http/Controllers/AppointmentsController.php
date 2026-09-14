@@ -11,7 +11,6 @@ use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use App\Repositories\Contracts\ServiceRepositoryInterface;
-use App\Repositories\Contracts\StaffProfileRepositoryInterface;
 use App\Repositories\Contracts\TimeSlotRepositoryInterface;
 use App\Services\AppointmentService;
 use App\Services\TenantContext;
@@ -29,7 +28,6 @@ class AppointmentsController extends Controller
         private AppointmentRepositoryInterface $appointmentRepository,
         private AppointmentService $appointmentService,
         private ClientRepositoryInterface $clientRepository,
-        private StaffProfileRepositoryInterface $staffProfileRepository,
         private ServiceRepositoryInterface $serviceRepository,
         private TimeSlotRepositoryInterface $timeSlotRepository,
         private TenantContext $tenantContext,
@@ -51,7 +49,6 @@ class AppointmentsController extends Controller
         abort_unless($request->user()->can('appointments.create'), 403);
 
         return view('admin.appointments.create', [
-            'staff' => $this->staffProfileRepository->getActive(),
             'services' => $this->serviceRepository->getActive(),
             'timeSlots' => $this->timeSlotRepository->getActive(),
         ]);
@@ -66,13 +63,12 @@ class AppointmentsController extends Controller
         try {
             $appointment = $this->appointmentService->book(
                 $data['client_id'],
-                $data['staff_profile_id'],
                 Carbon::parse($data['start_at']),
                 $data['services'],
                 $data['notes'] ?? null,
             );
         } catch (StaffUnavailableException $exception) {
-            return back()->withErrors(['staff_profile_id' => $exception->getMessage()])->withInput();
+            return back()->withErrors(['services' => $exception->getMessage()])->withInput();
         } catch (InvalidArgumentException $exception) {
             return back()->withErrors(['services' => $exception->getMessage()])->withInput();
         }
@@ -120,6 +116,8 @@ class AppointmentsController extends Controller
     public function show(Request $request, string $subdomain, Appointment $appointment): View
     {
         abort_unless($request->user()->can('appointments.view'), 403);
+
+        $appointment->load(['client', 'services', 'staffProfiles']);
 
         return view('admin.appointments.show', ['appointment' => $appointment]);
     }

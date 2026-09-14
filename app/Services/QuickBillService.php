@@ -36,37 +36,49 @@ class QuickBillService
     }
 
     /**
-     * Creates a bill from scanned service codes and settles it in full with a single payment.
+     * Creates a bill from resolved line items and settles it in full with a single payment.
      *
-     * @param  array<int, string>  $codes
-     * @param  array<int, int|null>  $staffProfileIds  Eligible staff performing each code, keyed to match $codes
+     * @param  array<int, array{service_id: int, staff_profile_id?: int|null, quantity?: int, description?: string, unit_price?: float}>  $items
      */
-    public function createAndSettle(array $codes, ?int $clientId, string $paymentMethod, int $staffUserId, array $staffProfileIds = []): Bill
+    public function createAndSettle(array $items, ?int $clientId, string $paymentMethod, int $staffUserId): Bill
     {
-        if ($codes === []) {
-            throw new InvalidArgumentException('At least one service code is required.');
+        if ($items === []) {
+            throw new InvalidArgumentException('At least one line item is required.');
         }
 
         $lineItems = [];
-        foreach ($codes as $index => $code) {
-            $service = $this->findServiceByCode($code);
+        foreach ($items as $item) {
+            $staffProfileId = $item['staff_profile_id'] ?? null;
 
-            if (! $service) {
-                throw new InvalidArgumentException("No active service found for code \"{$code}\".");
-            }
+            if (! empty($item['service_id'])) {
+                $service = Service::query()->active()->find($item['service_id']);
 
-            $staffProfileId = $staffProfileIds[$index] ?? null;
+                if (! $service) {
+                    throw new InvalidArgumentException('One of the selected services is no longer available.');
+                }
 
-            if ($staffProfileId && ! $service->staff()->where('staff_profiles.id', $staffProfileId)->exists()) {
-                throw new InvalidArgumentException("The selected staff member is not eligible to perform \"{$service->name}\".");
+                if ($staffProfileId && ! $service->staff()->where('staff_profiles.id', $staffProfileId)->exists()) {
+                    throw new InvalidArgumentException("The selected staff member is not eligible to perform \"{$service->name}\".");
+                }
+
+                $lineItems[] = [
+                    'service_id' => $service->id,
+                    'staff_profile_id' => $staffProfileId,
+                    'description' => $service->name,
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit_price' => (float) $service->price,
+                    'tax_rate' => 18.00,
+                ];
+
+                continue;
             }
 
             $lineItems[] = [
-                'service_id' => $service->id,
+                'service_id' => null,
                 'staff_profile_id' => $staffProfileId,
-                'description' => $service->name,
-                'quantity' => 1,
-                'unit_price' => (float) $service->price,
+                'description' => $item['description'] ?? 'Manual item',
+                'quantity' => $item['quantity'] ?? 1,
+                'unit_price' => (float) ($item['unit_price'] ?? 0),
                 'tax_rate' => 18.00,
             ];
         }

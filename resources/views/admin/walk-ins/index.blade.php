@@ -10,6 +10,35 @@
         </div>
     </div>
 
+    @can('appointments.create')
+        <div style="padding:13px;border-radius:13px;background:#F3F6F5;border:1px solid #F0E7E1;margin-bottom:16px">
+            <form action="{{ $tenantUrl->route('walkIns.store') }}" method="POST" style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap">
+                @csrf
+                <div class="sfp-field" style="margin-bottom: 0">
+                    <label class="sfp-label">Name</label>
+                    <input type="text" name="name" class="sfp-input" style="margin-bottom: 0" value="{{ old('name') }}" required>
+                </div>
+                <div class="sfp-field" style="margin-bottom: 0">
+                    <label class="sfp-label">Phone</label>
+                    <input type="text" name="phone" class="sfp-input" style="margin-bottom: 0" value="{{ old('phone') }}">
+                </div>
+                <div class="sfp-field" style="margin-bottom: 0">
+                    <label class="sfp-label">Service</label>
+                    <select name="service_id" class="sfp-input" style="margin-bottom: 0">
+                        <option value="">None</option>
+                        @foreach ($services as $service)
+                            <option value="{{ $service->id }}" @selected(old('service_id') == $service->id)>{{ $service->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="sfp-btn-primary">Add to queue</button>
+            </form>
+            @error('name')
+                <span class="sfp-invalid-feedback">{{ $message }}</span>
+            @enderror
+        </div>
+    @endcan
+
     <div style="display: flex; flex-direction: column; gap: 10px">
         @foreach ($walkIns as $walkIn)
             <div style="padding:13px;border-radius:13px;background:#F3F6F5;border:1px solid #F0E7E1">

@@ -44,26 +44,13 @@
             </div>
 
             <div class="sfp-field">
-                <label class="sfp-label">Staff</label>
-                <select name="staff_profile_id" class="sfp-input">
-                    <option value="">Select staff&hellip;</option>
-                    @foreach ($staff as $member)
-                        <option value="{{ $member->id }}" @selected(old('staff_profile_id') == $member->id)>{{ $member->name }}</option>
-                    @endforeach
-                </select>
-                @error('staff_profile_id')
-                    <span class="sfp-invalid-feedback">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="sfp-field">
                 <label class="sfp-label">Services</label>
-                <div style="display:grid;gap:8px">
+                <div id="appt-service-picker" style="display:grid;gap:8px;margin-bottom:12px">
                     @foreach ($services as $service)
                         <div class="form-check">
-                            <input type="checkbox" name="services[{{ $loop->index }}][service_id]" value="{{ $service->id }}"
-                                   id="svc-{{ $service->id }}" class="form-check-input"
-                                   @checked(collect(old('services', []))->pluck('service_id')->contains($service->id))>
+                            <input type="checkbox" class="form-check-input appt-service-toggle" value="{{ $service->id }}"
+                                   id="svc-{{ $service->id }}" data-name="{{ $service->name }}" data-duration="{{ $service->duration_minutes }}"
+                                   data-price="{{ $service->price }}">
                             <label class="form-check-label" for="svc-{{ $service->id }}">
                                 {{ $service->name }}
                                 <span class="sfp-mono" style="color:#94A19D;font-size:12.5px">&mdash; {{ $service->duration_minutes }} min &middot; &#8377;{{ number_format((float) $service->price, 2) }}</span>
@@ -71,6 +58,16 @@
                         </div>
                     @endforeach
                 </div>
+
+                <div class="sfp-table-wrap" id="appt-lines-wrap" style="display:none">
+                    <div class="sfp-table-head-row" style="grid-template-columns:1.4fr 1fr 90px">
+                        <span>Service</span>
+                        <span>Staff</span>
+                        <span></span>
+                    </div>
+                    <div id="appt-lines"></div>
+                </div>
+
                 @error('services')
                     <span class="sfp-invalid-feedback">{{ $message }}</span>
                 @enderror
@@ -134,8 +131,113 @@
     const dateInput = document.getElementById('appt-date');
     const slotSelect = document.getElementById('appt-time-slot');
     const startAtInput = document.getElementById('appt-start-at');
+    const serviceToggles = [...document.querySelectorAll('.appt-service-toggle')];
+    const linesWrap = document.getElementById('appt-lines-wrap');
+    const linesBody = document.getElementById('appt-lines');
+    const apptForm = document.getElementById('appt-form');
 
     let searchTimer = null;
+    let lines = [];
+
+    function renderLines() {
+        linesBody.innerHTML = '';
+        linesWrap.style.display = lines.length ? 'block' : 'none';
+
+        lines.forEach((line, index) => {
+            const row = document.createElement('div');
+            row.className = 'sfp-table-row';
+            row.style.gridTemplateColumns = '1.4fr 1fr 90px';
+            row.innerHTML = `
+                <span style="font-size:14px">${line.name}
+                    <span class="sfp-mono" style="color:#94A19D;font-size:12px">&mdash; ${line.duration} min</span>
+                </span>
+                <span class="appt-line-staff-slot"></span>
+                <span class="appt-line-remove-slot"></span>
+            `;
+
+            const staffSelect = document.createElement('select');
+            staffSelect.className = 'sfp-input appt-line-staff';
+            staffSelect.style.cssText = 'margin-bottom:0;font-size:13px;padding:4px 8px';
+            staffSelect.innerHTML = '<option value="">Loading&hellip;</option>';
+            staffSelect.addEventListener('change', () => {
+                line.staffProfileId = staffSelect.value || null;
+            });
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'sfp-btn-link-danger';
+            removeBtn.textContent = 'Remove';
+            removeBtn.addEventListener('click', () => {
+                document.getElementById('svc-' + line.serviceId).checked = false;
+                lines.splice(index, 1);
+                renderLines();
+            });
+
+            row.querySelector('.appt-line-staff-slot').replaceWith(staffSelect);
+            row.querySelector('.appt-line-remove-slot').replaceWith(removeBtn);
+            linesBody.appendChild(row);
+
+            loadEligibleStaff(line.serviceId, staffSelect, line.staffProfileId);
+        });
+    }
+
+    async function loadEligibleStaff(serviceId, select, selectedId) {
+        const response = await fetch('{{ $tenantUrl->route("appointments.services.eligibleStaff", ["service" => "__ID__"]) }}'.replace('__ID__', serviceId), {
+            headers: { 'Accept': 'application/json' },
+        });
+
+        const data = response.ok ? await response.json() : { staff: [] };
+        const staff = data.staff || [];
+
+        select.innerHTML = '<option value="">Select staff&hellip;</option>' + staff.map((member) =>
+            `<option value="${member.id}" ${String(member.id) === String(selectedId || '') ? 'selected' : ''}>${member.name}</option>`
+        ).join('');
+    }
+
+    serviceToggles.forEach((toggle) => {
+        toggle.addEventListener('change', () => {
+            const serviceId = toggle.value;
+
+            if (toggle.checked) {
+                lines.push({
+                    serviceId,
+                    name: toggle.dataset.name,
+                    duration: toggle.dataset.duration,
+                    staffProfileId: null,
+                });
+            } else {
+                lines = lines.filter((line) => line.serviceId !== serviceId);
+            }
+
+            renderLines();
+        });
+    });
+
+    apptForm.addEventListener('submit', (event) => {
+        document.querySelectorAll('.appt-line-hidden-input').forEach((el) => el.remove());
+
+        if (lines.some((line) => !line.staffProfileId)) {
+            event.preventDefault();
+            alert('Select a staff member for every service.');
+            return;
+        }
+
+        lines.forEach((line, index) => {
+            const serviceInput = document.createElement('input');
+            serviceInput.type = 'hidden';
+            serviceInput.className = 'appt-line-hidden-input';
+            serviceInput.name = `services[${index}][service_id]`;
+            serviceInput.value = line.serviceId;
+            apptForm.appendChild(serviceInput);
+
+            const staffInput = document.createElement('input');
+            staffInput.type = 'hidden';
+            staffInput.className = 'appt-line-hidden-input';
+            staffInput.name = `services[${index}][staff_profile_id]`;
+            staffInput.value = line.staffProfileId;
+            apptForm.appendChild(staffInput);
+        });
+    });
 
     function selectClient(client) {
         clientIdInput.value = client.id;

@@ -12,7 +12,6 @@ use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\InventoryCategoriesController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductsController;
-use App\Http\Controllers\QuickBillController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ServiceCategoriesController;
 use App\Http\Controllers\ServicesController;
@@ -102,6 +101,10 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
             Route::delete('/services/categories/{category}', [ServiceCategoriesController::class, 'destroy'])->name("serviceCategories.destroy{$nameSuffix}");
         });
 
+        Route::middleware('permission:billing.create')->group(function () use ($nameSuffix): void {
+            Route::get('/services/search', [ServicesController::class, 'search'])->name("services.search{$nameSuffix}");
+        });
+
         Route::middleware('permission:services.view')->group(function () use ($nameSuffix): void {
             Route::get('/services/{service}', [ServicesController::class, 'show'])->name("services.show{$nameSuffix}");
         });
@@ -147,6 +150,7 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
             Route::post('/walk-ins', [WalkInsController::class, 'store'])->name("walkIns.store{$nameSuffix}");
             Route::get('/appointments/clients/search', [AppointmentsController::class, 'searchClients'])->name("appointments.searchClients{$nameSuffix}");
             Route::post('/appointments/clients/quick-create', [AppointmentsController::class, 'quickCreateClient'])->name("appointments.quickCreateClient{$nameSuffix}");
+            Route::get('/appointments/services/{service}/eligible-staff', [ServicesController::class, 'eligibleStaff'])->name("appointments.services.eligibleStaff{$nameSuffix}");
             Route::get('/appointments/time-slots/create', [TimeSlotsController::class, 'create'])->name("timeSlots.create{$nameSuffix}");
             Route::post('/appointments/time-slots', [TimeSlotsController::class, 'store'])->name("timeSlots.store{$nameSuffix}");
         });
@@ -170,6 +174,10 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
 
         Route::middleware('permission:clients.view')->group(function () use ($nameSuffix): void {
             Route::get('/clients', [ClientsController::class, 'index'])->name("clients.index{$nameSuffix}");
+        });
+
+        Route::middleware('permission:billing.create')->group(function () use ($nameSuffix): void {
+            Route::get('/clients/search', [ClientsController::class, 'search'])->name("clients.search{$nameSuffix}");
         });
 
         Route::middleware('permission:clients.create')->group(function () use ($nameSuffix): void {
@@ -204,16 +212,11 @@ $registerTenantRoutes = function (string $nameSuffix = ''): void {
         });
 
         Route::middleware('permission:billing.create')->group(function () use ($nameSuffix): void {
-            Route::get('/bills/quick', [QuickBillController::class, 'create'])->name("bills.quick.create{$nameSuffix}");
-            Route::get('/bills/quick/services/{code}', [QuickBillController::class, 'lookupService'])->name("bills.quick.lookupService{$nameSuffix}");
-            Route::get('/bills/quick/services/{code}/eligible-staff', [QuickBillController::class, 'eligibleStaff'])->name("bills.quick.eligibleStaff{$nameSuffix}");
-            Route::get('/bills/quick/clients/{phone}', [QuickBillController::class, 'lookupClient'])->name("bills.quick.lookupClient{$nameSuffix}");
-            Route::post('/bills/quick/settle', [QuickBillController::class, 'settle'])->name("bills.quick.settle{$nameSuffix}");
-
             Route::get('/bills/create', [BillsController::class, 'create'])->name("bills.create{$nameSuffix}");
             Route::get('/services/{service}/eligible-staff', [ServicesController::class, 'eligibleStaff'])->name("services.eligibleStaff{$nameSuffix}");
             Route::post('/appointments/{appointment}/bill', [BillsController::class, 'generateFromAppointment'])->name("bills.generateFromAppointment{$nameSuffix}");
             Route::post('/bills', [BillsController::class, 'storeManual'])->name("bills.storeManual{$nameSuffix}");
+            Route::post('/bills/settle', [BillsController::class, 'settle'])->name("bills.settle{$nameSuffix}");
             Route::put('/bills/{bill}/payments', [BillsController::class, 'recordPayment'])->name("bills.recordPayment{$nameSuffix}");
         });
 

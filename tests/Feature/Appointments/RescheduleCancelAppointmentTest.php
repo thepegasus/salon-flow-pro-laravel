@@ -3,6 +3,7 @@
 namespace Tests\Feature\Appointments;
 
 use App\Models\Appointment;
+use App\Models\Service;
 use App\Models\StaffProfile;
 use App\Models\StaffShift;
 use App\Models\User;
@@ -39,9 +40,16 @@ class RescheduleCancelAppointmentTest extends TestCase
             'end_time' => '18:00',
             'is_working' => true,
         ]);
+        $service = Service::factory()->create(['tenant_id' => $this->tenant->id, 'duration_minutes' => 45]);
         $appointment = Appointment::factory()->create([
             'tenant_id' => $this->tenant->id,
+            'start_at' => $originalStart,
+            'end_at' => $originalStart->copy()->addMinutes(45),
+        ]);
+        $appointment->services()->attach($service, [
             'staff_profile_id' => $staffProfile->id,
+            'price_at_booking' => $service->price,
+            'duration_minutes_at_booking' => $service->duration_minutes,
             'start_at' => $originalStart,
             'end_at' => $originalStart->copy()->addMinutes(45),
         ]);

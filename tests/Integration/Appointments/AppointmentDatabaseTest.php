@@ -35,7 +35,7 @@ class AppointmentDatabaseTest extends TestCase
         $client = Client::factory()->create(['tenant_id' => $tenant->id]);
         $service = Service::factory()->create(['tenant_id' => $tenant->id]);
 
-        $appointment = app(AppointmentService::class)->book($client->id, $staffProfile->id, $start, [['service_id' => $service->id]]);
+        $appointment = app(AppointmentService::class)->book($client->id, $start, [['service_id' => $service->id, 'staff_profile_id' => $staffProfile->id]]);
 
         $this->assertDatabaseHas('appointment_service', ['appointment_id' => $appointment->id, 'service_id' => $service->id]);
         $this->assertSame(2, $appointment->reminders()->count());

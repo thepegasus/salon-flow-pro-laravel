@@ -31,10 +31,12 @@ class WalkInService
     public function assign(WalkIn $walkIn, int $staffProfileId, int $clientId): WalkIn
     {
         return DB::transaction(function () use ($walkIn, $staffProfileId, $clientId): WalkIn {
-            $lineItems = $walkIn->service_id ? [['service_id' => $walkIn->service_id]] : [];
+            $lineItems = $walkIn->service_id
+                ? [['service_id' => $walkIn->service_id, 'staff_profile_id' => $staffProfileId]]
+                : [];
 
             $appointment = $lineItems !== []
-                ? $this->appointmentService->book($clientId, $staffProfileId, now(), $lineItems)
+                ? $this->appointmentService->book($clientId, now(), $lineItems)
                 : null;
 
             $walkIn->update([

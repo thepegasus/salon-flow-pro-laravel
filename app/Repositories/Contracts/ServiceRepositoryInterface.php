@@ -12,6 +12,9 @@ interface ServiceRepositoryInterface
     /** @return Collection<int, Service> */
     public function getActive(): Collection;
 
+    /** @return Collection<int, Service> */
+    public function search(string $term): Collection;
+
     /** @param array<string, mixed> $data */
     public function create(array $data): Service;
 

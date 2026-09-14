@@ -20,7 +20,7 @@ class AppointmentRepository implements AppointmentRepositoryInterface
     public function getForDate(Carbon $date): Collection
     {
         return $this->model->onDate($date->toDateString())
-            ->with(['client', 'staffProfile', 'services'])
+            ->with(['client', 'services', 'staffProfiles'])
             ->orderBy('start_at')
             ->get();
     }
@@ -29,10 +29,12 @@ class AppointmentRepository implements AppointmentRepositoryInterface
     public function getOverlappingForStaff(int $staffProfileId, Carbon $start, Carbon $end, ?int $excludingAppointmentId = null): Collection
     {
         return $this->model
-            ->where('staff_profile_id', $staffProfileId)
             ->whereNotIn('status', [Appointment::StatusCancelled, Appointment::StatusNoShow])
-            ->where('start_at', '<', $end)
-            ->where('end_at', '>', $start)
+            ->whereHas('services', function ($query) use ($staffProfileId, $start, $end): void {
+                $query->where('appointment_service.staff_profile_id', $staffProfileId)
+                    ->where('appointment_service.start_at', '<', $end)
+                    ->where('appointment_service.end_at', '>', $start);
+            })
             ->when($excludingAppointmentId, fn ($query) => $query->where('id', '!=', $excludingAppointmentId))
             ->get();
     }

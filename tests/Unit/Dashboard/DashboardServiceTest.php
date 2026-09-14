@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Dashboard;
 
-use App\Models\Appointment;
 use App\Models\Bill;
 use App\Models\BillLineItem;
 use App\Models\Client;
@@ -93,32 +92,32 @@ class DashboardServiceTest extends TestCase
         $client = Client::factory()->create(['tenant_id' => $tenant->id]);
         $user = User::factory()->for($tenant)->create();
 
-        $topAppointment = Appointment::factory()->create([
-            'tenant_id' => $tenant->id,
-            'client_id' => $client->id,
-            'staff_profile_id' => $staffTop->id,
-        ]);
-        $otherAppointment = Appointment::factory()->create([
-            'tenant_id' => $tenant->id,
-            'client_id' => $client->id,
-            'staff_profile_id' => $staffOther->id,
-        ]);
-
-        Bill::factory()->create([
+        $topBill = Bill::factory()->create([
             'tenant_id' => $tenant->id,
             'client_id' => $client->id,
             'created_by' => $user->id,
-            'appointment_id' => $topAppointment->id,
             'total' => 900,
             'created_at' => now(),
         ]);
-        Bill::factory()->create([
+        BillLineItem::factory()->create([
+            'tenant_id' => $tenant->id,
+            'bill_id' => $topBill->id,
+            'staff_profile_id' => $staffTop->id,
+            'line_total' => 900,
+        ]);
+
+        $otherBill = Bill::factory()->create([
             'tenant_id' => $tenant->id,
             'client_id' => $client->id,
             'created_by' => $user->id,
-            'appointment_id' => $otherAppointment->id,
             'total' => 100,
             'created_at' => now(),
+        ]);
+        BillLineItem::factory()->create([
+            'tenant_id' => $tenant->id,
+            'bill_id' => $otherBill->id,
+            'staff_profile_id' => $staffOther->id,
+            'line_total' => 100,
         ]);
 
         $summary = app(DashboardService::class)->summaryFor(Carbon::today());
